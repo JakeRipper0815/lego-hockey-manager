@@ -1,92 +1,54 @@
+
 <!doctype html>
 <html lang="de">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101827">
 <title>LEGO Hockey Manager</title>
-
 <style>
-body {
-  font: 16px system-ui;
-  background: #101827;
-  color: #f2f5fa;
-  margin: auto;
-  padding: 16px;
-  max-width: 850px;
-}
-h1 { font-size: 25px; }
-button, select, input {
-  font: inherit;
-  padding: 10px;
-  border-radius: 9px;
-  border: 1px solid #64748b;
-}
-button {
-  background: #38bdf8;
-  color: #06121d;
-  font-weight: 700;
-  margin: 4px;
-  cursor: pointer;
-}
-button:disabled { opacity: .35; }
-input[type=number] { width: 110px; }
-nav button {
-  background: #24344c;
-  color: white;
-}
-.card {
-  background: #1e293b;
-  border-radius: 12px;
-  padding: 14px;
-  margin: 10px 0;
-}
-.muted {
-  color: #cbd5e1;
-  font-size: 13px;
-}
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-strong { color: #7dd3fc; }
-#notice { color: #86efac; }
-label { display: inline-block; margin: 5px; }
-.danger { background: #f87171; }
-.position {
-  padding: 4px 9px;
-  border-radius: 7px;
-  font-weight: bold;
-  display: inline-block;
-}
-.DF { background: #dc2626; color: white; }
-.O { background: #2563eb; color: white; }
-.ST { background: #111; color: white; }
-.GK { background: #facc15; color: black; }
-.form-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.form-grid label {
-  display: flex;
-  flex-direction: column;
-}
-.form-grid input, .form-grid select {
-  width: 180px;
-  max-width: 100%;
-  box-sizing: border-box;
-}
+*{box-sizing:border-box}
+body{font:16px system-ui,sans-serif;background:#101827;color:#f2f5fa;margin:0 auto;padding:16px;max-width:900px}
+h1{font-size:25px}
+button,select,input{font:inherit;padding:10px;border-radius:9px;border:1px solid #64748b}
+button{background:#38bdf8;color:#06121d;font-weight:700;margin:4px;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+nav button{background:#24344c;color:white}
+.card{background:#1e293b;border-radius:12px;padding:14px;margin:10px 0}
+.muted{color:#cbd5e1;font-size:13px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+strong{color:#7dd3fc}
+#notice{color:#86efac}
+label{display:inline-block;margin:5px}
+.danger{background:#f87171}
+.secondary{background:#64748b;color:white}
+.form-grid{display:flex;flex-wrap:wrap;gap:10px}
+.form-grid label{display:flex;flex-direction:column}
+.form-grid input,.form-grid select{width:180px;max-width:100%}
+.tag{display:inline-block;padding:3px 8px;border-radius:7px;font-size:13px;font-weight:750}
+.tag-GK{background:#facc15;color:#111}
+.tag-DF{background:#dc2626;color:white}
+.tag-O{background:#2563eb;color:white}
+.tag-ST{background:#171717;color:white}
+.rink{position:relative;width:100%;max-width:600px;aspect-ratio:340/470;margin:16px auto;background:#f5fbff;border:5px solid #d63143;border-radius:12%/9%;overflow:hidden;color:#17283b}
+.rink svg{position:absolute;inset:0;width:100%;height:100%}
+.slot{position:absolute;transform:translate(-50%,-50%);width:30%;max-width:155px;min-height:55px;border:2px solid white;box-shadow:0 2px 7px #2238;background:#24344c;color:white;border-radius:13px;font-size:clamp(10px,2.5vw,14px);padding:5px;line-height:1.25;z-index:1}
+.slot b{display:block;font-size:clamp(12px,2.8vw,16px)}
+.slot-GK{background:#facc15;color:#111}
+.slot-DF{background:#dc2626}
+.slot-O{background:#2563eb}
+.slot-ST{background:#171717}
+.bench{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.bench button{width:100%;margin:0}
+.small{font-size:13px}
+.status{padding:8px 12px;background:#25354b;border-radius:9px;margin:10px 0}
+select{max-width:100%}
+@media(min-width:650px){.bench{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
-
 <body>
-
 <h1>🏒 LEGO Hockey Manager</h1>
-<p class="muted">Private Spielversion</p>
-
+<p class="muted">Private Spielversion · mit Eishockeyfeld und Formationen</p>
 <nav>
 <button onclick="tab='market';render()">Transfermarkt</button>
 <button onclick="tab='teams';render()">Mannschaften</button>
@@ -95,353 +57,550 @@ label { display: inline-block; margin: 5px; }
 <button onclick="tab='players';editingId=null;render()">Spieler verwalten</button>
 <button onclick="tab='backup';render()">Sicherung</button>
 </nav>
-
-<p id="notice"></p>
+<p id="notice" role="status"></p>
 <main id="app"></main>
-
 <script>
-const names = [
-'Mika Blitz','Leo Frost','Finn Stahl','Noah Sturm',
-'Ben Eis','Timo Komet','Luca Nord','Paul Klinge',
-'Elias Turbo','Max Polar','Oskar Wolf','Jan Rakete'
-];
+'use strict';
 
-function fresh() {
+const names=['Mika Blitz','Leo Frost','Finn Stahl','Noah Sturm','Ben Eis','Timo Komet','Luca Nord','Paul Klinge','Elias Turbo','Max Polar','Oskar Wolf','Jan Rakete'];
+
+const FORMATIONS={
+  Ausgewogen:['GK','DF','DF','O','O','ST'],
+  Defensiv:['GK','DF','DF','DF','ST','ST'],
+  Zentrum:['GK','DF','DF','O','ST','ST'],
+  Abwehrbollwerk:['GK','DF','DF','DF','DF','ST']
+};
+const BENCH=['GK','DF','O','ST'];
+
+function fresh(){
   return {
-    round: 1,
-    managers: [
+    round:1,
+    managers:[
       {name:'Manager Rot',cash:30,points:0},
       {name:'Manager Blau',cash:30,points:0},
       {name:'Manager Grün',cash:30,points:0}
     ],
-    players: names.map((name,id)=>({
-      id,
-      name,
+    players:names.map((name,id)=>({
+      id,name,
       team:['Eisbären','Wölfe','Pinguine'][id%3],
-      position:'DF',
+      position:['GK','DF','O','ST'][id%4],
       value:3+id%5,
       owner:-1,
       points:0
     })),
-    market:[0,1,2,3]
+    market:[0,1,2,3],
+    lineups:{},
+    locked:false
   };
 }
 
 let state;
-try {
+try{
   state=JSON.parse(localStorage.getItem('legoHockeyV1'))||fresh();
-} catch(e) {
+}catch(e){
   state=fresh();
 }
 
-let tab='market';
-let selected=0;
-let editingId=null;
+function normalize(){
+  if(!Array.isArray(state.players)||!Array.isArray(state.managers)){
+    state=fresh();
+  }
+  state.market=Array.isArray(state.market)?state.market:[];
+  state.lineups=state.lineups&&typeof state.lineups==='object'?state.lineups:{};
+  state.locked=!!state.locked;
 
+  state.players.forEach(p=>{
+    if(!['GK','DF','O','ST'].includes(p.position))p.position='DF';
+    if(!Number.isFinite(Number(p.points)))p.points=0;
+  });
+
+  state.managers.forEach((m,i)=>{
+    if(!state.lineups[i]){
+      state.lineups[i]={
+        formation:'Ausgewogen',
+        starters:Array(6).fill(null),
+        bench:Array(4).fill(null)
+      };
+    }
+    let l=state.lineups[i];
+    if(!FORMATIONS[l.formation])l.formation='Ausgewogen';
+    if(!Array.isArray(l.starters))l.starters=[];
+    if(!Array.isArray(l.bench))l.bench=[];
+    l.starters=Array.from({length:6},(_,j)=>l.starters[j]??null);
+    l.bench=Array.from({length:4},(_,j)=>l.bench[j]??null);
+  });
+}
+normalize();
+
+let tab='market',selected=0,editingId=null;
 const $=id=>document.getElementById(id);
 const euro=n=>Number(n).toFixed(2)+' Mio.';
+const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({
+  '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[c]));
 
-function save() {
-  localStorage.setItem('legoHockeyV1',JSON.stringify(state));
+function save(){
+  try{
+    localStorage.setItem('legoHockeyV1',JSON.stringify(state));
+  }catch(e){
+    alert('Speichern im Browser fehlgeschlagen. Bitte eine Sicherung herunterladen.');
+  }
 }
+function notice(t){$('notice').textContent=t}
+function playerById(id){return state.players.find(p=>p.id===Number(id))}
+function nextId(){return Math.max(-1,...state.players.map(p=>Number(p.id)||0))+1}
+function tag(p){return `<span class="tag tag-${p.position}">${p.position}</span>`}
 
-function notice(t) {
-  $('notice').textContent=t;
-}
-
-function safe(t) {
-  return String(t??'').replace(/[&<>"']/g,c=>({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  }[c]));
-}
-
-function playerById(id) {
-  return state.players.find(p=>p.id===Number(id));
-}
-
-function nextId() {
-  return Math.max(-1,...state.players.map(p=>p.id))+1;
-}
-
-function positionTag(p) {
-  if(!p.position) return '';
-  return `<span class="position ${p.position}">${p.position}</span>`;
-}
-
-function managerSelect() {
+function managerSelect(){
   return '<label>Manager: <select onchange="selected=+this.value;render()">'+
-  state.managers.map((m,i)=>
-    `<option value="${i}" ${selected===i?'selected':''}>${safe(m.name)}</option>`
-  ).join('')+'</select></label>';
+    state.managers.map((m,i)=>`<option value="${i}" ${selected===i?'selected':''}>${esc(m.name)}</option>`).join('')+
+    '</select></label>';
 }
 
-function card(p,action='') {
-  return `<div class="card row">
-    <div>
-      <b>${safe(p.name)}</b> ${positionTag(p)}
-      <div class="muted">
-        ${safe(p.team)} · Marktwert
-        <strong>${euro(p.value)}</strong>
-        · letzte Punkte: ${p.points}
-      </div>
-    </div>
-    ${action}
-  </div>`;
+function card(p,action=''){
+  return `<div class="card row"><div><b>${esc(p.name)}</b> ${tag(p)}
+    <div class="muted">${esc(p.team)} · Marktwert
+    <strong>${euro(p.value)}</strong> · letzte Punkte: ${p.points}</div>
+    </div>${action}</div>`;
 }
 
-function buy(id) {
-  let p=playerById(id);
-  let m=state.managers[selected];
+function buy(id){
+  let p=playerById(id),m=state.managers[selected];
   if(!p||p.owner!==-1||!state.market.includes(id)||m.cash<p.value)return;
   m.cash=+(m.cash-p.value).toFixed(2);
   p.owner=selected;
   state.market=state.market.filter(x=>x!==id);
-  save();
-  notice('Spieler gekauft!');
-  render();
+  save();notice('Spieler gekauft!');render();
 }
 
-function sell(id) {
+function removeFromLineups(id){
+  for(let l of Object.values(state.lineups)){
+    l.starters=l.starters.map(x=>x===id?null:x);
+    l.bench=l.bench.map(x=>x===id?null:x);
+  }
+}
+
+function sell(id){
   let p=playerById(id);
   if(!p||p.owner!==selected)return;
+  if(state.locked){
+    alert('Während des gesperrten Spieltags sind Verkäufe deaktiviert.');
+    return;
+  }
+  removeFromLineups(id);
   state.managers[selected].cash=+(state.managers[selected].cash+p.value).toFixed(2);
   p.owner=-1;
-  save();
-  notice('Spieler verkauft!');
-  render();
+  save();notice('Spieler verkauft!');render();
 }
 
-function finish() {
-  if(!confirm('Spieltag abschließen?'))return;
+function formationChange(v){
+  if(state.locked)return;
+  let l=state.lineups[selected],next=FORMATIONS[v];
+  if(!next)return;
 
-  for(let p of state.players) {
-    if(p.owner>=0) {
-      state.managers[p.owner].points+=p.points;
-    }
-    let change=(p.points-5)*.045+(Math.random()-.5)*.12;
-    p.value=Math.max(.5,Math.round(p.value*(1+change)*100)/100);
+  let pool=l.starters.filter(x=>x!==null).map(id=>playerById(id)).filter(Boolean);
+  let assigned=Array(6).fill(null);
+
+  for(let i=0;i<6;i++){
+    let p=pool.find(p=>p.position===next[i]&&!assigned.includes(p.id));
+    if(p)assigned[i]=p.id;
+  }
+  l.formation=v;
+  l.starters=assigned;
+  save();render();
+  notice('Formation geändert. Nicht passende Stammspieler wurden aus der Aufstellung genommen.');
+}
+
+function choosePlayer(kind,index){
+  if(state.locked){alert('Aufstellung ist gesperrt.');return}
+
+  let l=state.lineups[selected];
+  let position=kind==='starter'?FORMATIONS[l.formation][index]:BENCH[index];
+  let current=kind==='starter'?l.starters[index]:l.bench[index];
+  let used=[...l.starters,...l.bench].filter(id=>id!==null&&id!==current);
+  let options=state.players.filter(p=>
+    p.owner===selected&&p.position===position&&!used.includes(p.id)
+  );
+
+  let list=[
+    `Position ${position} – Spieler wählen:`,
+    `0: Platz freilassen`,
+    ...options.map((p,i)=>`${i+1}: ${p.name} (${euro(p.value)})`)
+  ];
+
+  let choice=prompt(
+    list.join('\n'),
+    current===null?'0':String(options.findIndex(p=>p.id===current)+1)
+  );
+  if(choice===null)return;
+
+  let n=Number(choice);
+  if(!Number.isInteger(n)||n<0||n>options.length){
+    alert('Ungültige Auswahl');return;
   }
 
-  let free=state.players
-    .filter(p=>p.owner===-1)
-    .sort(()=>Math.random()-.5);
-
-  state.market=free.slice(0,Math.min(4,free.length)).map(p=>p.id);
-  state.round++;
-  save();
-  notice('Spieltag abgeschlossen!');
-  render();
+  let id=n===0?null:options[n-1].id;
+  if(kind==='starter')l.starters[index]=id;
+  else l.bench[index]=id;
+  save();render();
 }
 
-// SPIELERVERWALTUNG
+function rink(){
+  let l=state.lineups[selected],positions=FORMATIONS[l.formation];
+  let forwards=positions.map((p,i)=>({p,i})).filter(x=>x.p==='ST'||x.p==='O');
+  let defense=positions.map((p,i)=>({p,i})).filter(x=>x.p==='DF');
+  let xy={};
 
-function editPlayer(id) {
+  forwards.forEach((x,k)=>{
+    xy[x.i]={
+      x:100*(k+1)/(forwards.length+1),
+      y:forwards.length===1?24:22+(k%2)*10
+    };
+  });
+  defense.forEach((x,k)=>{
+    xy[x.i]={
+      x:100*(k+1)/(defense.length+1),
+      y:defense.length===4?65+(k%2)*8:66
+    };
+  });
+
+  let goalie=positions.findIndex(p=>p==='GK');
+  xy[goalie]={x:50,y:89};
+
+  let slots=positions.map((p,i)=>{
+    let player=playerById(l.starters[i]),point=xy[i];
+    return `<button class="slot slot-${p}"
+      style="left:${point.x}%;top:${point.y}%"
+      onclick="choosePlayer('starter',${i})"
+      ${state.locked?'disabled':''}>
+      <b>${p}</b>${player?esc(player.name):'+ Spieler'}
+    </button>`;
+  }).join('');
+
+  let bench=BENCH.map((p,i)=>{
+    let player=playerById(l.bench[i]);
+    return `<button class="slot-${p}"
+      onclick="choosePlayer('bench',${i})"
+      ${state.locked?'disabled':''}>
+      ${p} · ${player?esc(player.name):'+ Ersatz'}
+    </button>`;
+  }).join('');
+
+  return `<div class="card">
+    <h3>Aufstellung · Spieltag ${state.round}</h3>
+    <label>Formation:
+      <select onchange="formationChange(this.value)" ${state.locked?'disabled':''}>
+        ${Object.keys(FORMATIONS).map(n=>
+          `<option ${n===l.formation?'selected':''}>${n}</option>`
+        ).join('')}
+      </select>
+    </label>
+    <p class="status">
+      ${state.locked?'🔒 Aufstellung gesperrt':'🔓 Aufstellung offen – tippe auf eine Position, um einen Spieler zu wählen'}
+    </p>
+    <div class="rink">
+      <svg viewBox="0 0 340 470" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 150H340 M0 320H340" stroke="#2b78bd" stroke-width="3"/>
+        <path d="M0 235H340" stroke="#c93443" stroke-width="3"/>
+        <circle cx="170" cy="235" r="51" stroke="#2b78bd" stroke-width="3" fill="none"/>
+        <circle cx="170" cy="235" r="4" fill="#2b78bd"/>
+        <circle cx="83" cy="88" r="29" stroke="#c93443" fill="none" stroke-width="2"/>
+        <circle cx="257" cy="88" r="29" stroke="#c93443" fill="none" stroke-width="2"/>
+        <circle cx="83" cy="382" r="29" stroke="#c93443" fill="none" stroke-width="2"/>
+        <circle cx="257" cy="382" r="29" stroke="#c93443" fill="none" stroke-width="2"/>
+        <path d="M139 468v-22q31-27 62 0v22" fill="#acd4f2" stroke="#c93443" stroke-width="3"/>
+      </svg>
+      ${slots}
+    </div>
+    <h3>Ersatzbank</h3>
+    <div class="bench">${bench}</div>
+    <p class="muted">
+      Je ein Ersatzspieler pro Position. Ein Ersatzspieler ersetzt automatisch
+      einen passenden Stammspieler mit 0 Punkten, wenn er selbst mehr Punkte erzielt.
+    </p>
+  </div>`;
+}
+
+function calculateRound(){
+  let totals=[];
+
+  for(let i=0;i<state.managers.length;i++){
+    let m=state.managers[i],l=state.lineups[i];
+    let pos=FORMATIONS[l.formation],usedBench=new Set(),score=0;
+
+    if(m.cash<0){totals.push(0);continue}
+
+    for(let j=0;j<6;j++){
+      let p=playerById(l.starters[j]);
+      if(!p||p.owner!==i||p.position!==pos[j]){
+        score-=4;
+        continue;
+      }
+
+      let pts=Number(p.points)||0;
+      if(pts===0){
+        let bIndex=BENCH.indexOf(pos[j]);
+        let reserve=playerById(l.bench[bIndex]);
+
+        if(bIndex>=0&&!usedBench.has(bIndex)&&reserve&&
+           reserve.owner===i&&reserve.position===pos[j]&&
+           Number(reserve.points)>0){
+          pts=Number(reserve.points);
+          usedBench.add(bIndex);
+        }
+      }
+      score+=pts;
+    }
+    totals.push(score);
+  }
+  return totals;
+}
+
+function finish(){
+  if(!state.locked){
+    alert('Bitte zuerst die Aufstellungen sperren.');
+    return;
+  }
+  if(!confirm('Spieltag abschließen? Punkte werden gutgeschrieben, Marktwerte verändert und die Aufstellungen wieder freigegeben.'))return;
+
+  let totals=calculateRound();
+  totals.forEach((pts,i)=>state.managers[i].points+=pts);
+
+  for(let p of state.players){
+    let change=(p.points-5)*.045+(Math.random()-.5)*.12;
+    p.value=Math.max(.5,Math.round(p.value*(1+change)*100)/100);
+    p.points=0;
+  }
+
+  let free=state.players.filter(p=>p.owner===-1).sort(()=>Math.random()-.5);
+  state.market=free.slice(0,Math.min(4,free.length)).map(p=>p.id);
+  state.round++;
+  state.locked=false;
+  save();render();
+
+  notice('Spieltag abgeschlossen! Punkte: '+
+    totals.map((n,i)=>state.managers[i].name+' '+n).join(' · '));
+}
+
+function lockLineups(){
+  if(state.locked)return;
+  if(!confirm('Aufstellungen aller Manager für diesen Spieltag sperren?'))return;
+  state.locked=true;
+  save();render();
+  notice('Aufstellungen gesperrt.');
+}
+
+function editPlayer(id){
   editingId=id;
   render();
   window.scrollTo(0,0);
 }
 
-function savePlayer() {
+function savePlayer(){
   let name=$('editName').value.trim();
   let position=$('editPosition').value;
   let value=Number($('editValue').value.replace(',','.'));
 
   if(!name||!['GK','DF','O','ST'].includes(position)||
-     !Number.isFinite(value)||value<=0) {
+     !Number.isFinite(value)||value<=0){
     alert('Bitte gültigen Namen, Position und Marktwert eingeben.');
     return;
   }
-
   value=Math.round(value*100)/100;
 
-  if(editingId===null) {
+  if(editingId===null){
     state.players.push({
-      id:nextId(),
-      name,
-      team:'Ohne Verein',
-      position,
-      value,
-      owner:-1,
-      points:0
+      id:nextId(),name,team:'Ohne Verein',
+      position,value,owner:-1,points:0
     });
-  } else {
+  }else{
     let p=playerById(editingId);
     if(!p)return;
-    p.name=name;
-    p.position=position;
-    p.value=value;
+    if(state.locked&&p.position!==position){
+      alert('Positionen können bei gesperrter Aufstellung nicht geändert werden.');
+      return;
+    }
+    if(p.position!==position)removeFromLineups(p.id);
+    p.name=name;p.position=position;p.value=value;
   }
 
   editingId=null;
-  save();
-  render();
+  save();render();
   notice('Spieler gespeichert!');
 }
 
-function deletePlayer(id) {
+function deletePlayer(id){
   let p=playerById(id);
   if(!p)return;
 
-  if(!confirm('Spieler "'+p.name+'" wirklich löschen?'))return;
+  if(state.locked){
+    alert('Während des gesperrten Spieltags können keine Spieler gelöscht werden.');
+    return;
+  }
+  if(!confirm('Spieler „'+p.name+'“ wirklich endgültig löschen?'))return;
 
+  removeFromLineups(id);
   state.players=state.players.filter(x=>x.id!==id);
   state.market=state.market.filter(x=>x!==id);
-
   if(editingId===id)editingId=null;
-
-  save();
-  render();
+  save();render();
   notice('Spieler gelöscht!');
 }
 
-function render() {
+function render(){
   let out='';
 
-  if(tab==='market') {
+  if(tab==='market'){
     out='<h2>Transfermarkt</h2>'+managerSelect()+
-    `<p>Budget: <strong>${euro(state.managers[selected].cash)}</strong></p>`+
-    state.market.map(id=>{
-      let p=playerById(id);
-      if(!p)return '';
-      return card(p,`<button ${state.managers[selected].cash<p.value?'disabled':''}
-        onclick="buy(${id})">Kaufen</button>`);
-    }).join('');
-    if(!state.market.length)out+='<p>Der Markt ist leer.</p>';
+      `<p>Budget: <strong>${euro(state.managers[selected].cash)}</strong></p>`+
+      state.market.map(id=>{
+        let p=playerById(id);
+        return p?card(p,
+          `<button ${state.managers[selected].cash<p.value?'disabled':''}
+            onclick="buy(${id})">Kaufen</button>`):'';
+      }).join('');
+    if(!state.market.length)
+      out+='<p>Der Markt ist leer. Nach dem nächsten Spieltag erscheinen neue Angebote.</p>';
   }
 
-  if(tab==='teams') {
+  if(tab==='teams'){
     out='<h2>Mannschaften</h2>'+managerSelect()+
-    `<p>Budget: ${euro(state.managers[selected].cash)}</p>`+
-    state.players.filter(p=>p.owner===selected)
-      .map(p=>card(p,`<button onclick="sell(${p.id})">Verkaufen</button>`)).join('');
+      `<p>Budget: <strong>${euro(state.managers[selected].cash)}</strong></p>`+
+      rink()+'<h3>Mein Kader</h3>'+
+      state.players.filter(p=>p.owner===selected).map(p=>
+        card(p,`<button ${state.locked?'disabled':''}
+          onclick="sell(${p.id})">Verkaufen</button>`)
+      ).join('');
     if(!state.players.some(p=>p.owner===selected))
-      out+='<p>Noch keine Spieler gekauft.</p>';
+      out+='<p>Noch keine Spieler gekauft. Kaufe zuerst Spieler auf dem Transfermarkt.</p>';
   }
 
-  if(tab==='round') {
+  if(tab==='round'){
     out=`<h2>Spieltag ${state.round}</h2>
-    <p>Trage die Punkte deiner LEGO-Spieler ein.</p>`+
-    state.players.map(p=>`
-      <div class="card row">
-        <div>${safe(p.name)} ${positionTag(p)}
-          <div class="muted">${safe(p.team)}</div>
-        </div>
-        <label>Punkte
-          <input type="number" min="-20" max="50" step="1"
-          value="${p.points}"
-          onchange="playerById(${p.id}).points=Number(this.value)||0;save()">
-        </label>
-      </div>`).join('')+
-    '<button onclick="finish()">✅ Spieltag abschließen</button>';
-  }
-
-  if(tab==='table') {
-    out='<h2>Manager-Tabelle</h2>'+
-    [...state.managers].sort((a,b)=>b.points-a.points)
-      .map((m,i)=>`<div class="card">
-        ${i+1}. <b>${safe(m.name)}</b> —
-        <strong>${m.points} Punkte</strong>
-        · Budget ${euro(m.cash)}
-      </div>`).join('');
-  }
-
-  if(tab==='players') {
-    out=`<h2>Spieler verwalten</h2>
-    <p class="muted">Spieler hinzufügen, bearbeiten oder löschen.</p>
-    <div class="card">
-      <h3>${editingId===null?'Neuen Spieler anlegen':'Spieler bearbeiten'}</h3>
-      <div class="form-grid">
-        <label>Spieler
-          <input id="editName" placeholder="Spielername">
-        </label>
-        <label>Position
-          <select id="editPosition">
-            <option value="GK">GK – Torwart</option>
-            <option value="DF">DF – Verteidiger</option>
-            <option value="O">O – Außenstürmer</option>
-            <option value="ST">ST – Mittelstürmer</option>
-          </select>
-        </label>
-        <label>Wert (Mio.)
-          <input id="editValue" type="number" min="0.01" step="0.01" placeholder="5.00">
-        </label>
-      </div>
-      <button onclick="savePlayer()">💾 ${editingId===null?'Spieler hinzufügen':'Speichern'}</button>
-      ${editingId!==null?'<button onclick="editingId=null;render()">Abbrechen</button>':''}
-    </div>
-    <h3>Alle Spieler (${state.players.length})</h3>`+
-    state.players.map(p=>`
-      <div class="card row">
-        <div>
-          <b>${safe(p.name)}</b> ${positionTag(p)}
-          <div class="muted">
-            ${safe(p.team)} · ${euro(p.value)}
+      <p>Trage die Punkte aller LEGO-Spieler ein. 0 ist möglich.</p>
+      <p class="status">${state.locked?'🔒 Aufstellungen gesperrt':'🔓 Aufstellungen noch offen'}</p>`+
+      state.players.map(p=>`
+        <div class="card row">
+          <div>${esc(p.name)} ${tag(p)}
+            <div class="muted">${esc(p.team)}</div>
           </div>
-        </div>
-        <div>
-          <button onclick="editPlayer(${p.id})">Bearbeiten</button>
-          <button class="danger" onclick="deletePlayer(${p.id})">Löschen</button>
-        </div>
-      </div>`).join('');
+          <label>Punkte
+            <input type="number" style="width:85px"
+              min="-20" max="50" step="1"
+              value="${Number(p.points)||0}"
+              onchange="playerById(${p.id}).points=Number(this.value)||0;save()">
+          </label>
+        </div>`).join('')+
+      (state.locked?
+        '<button onclick="finish()">✅ Spieltag abschließen</button>':
+        '<button onclick="lockLineups()">🔒 Aufstellungen sperren</button>')+
+      '<p class="muted">Nur aufgestellte Spieler zählen. Unbesetzte Stammplätze: −4 Punkte. Ein passender Ersatzspieler kann bei 0 Punkten einspringen, höchstens einmal. Bei negativem Budget: 0 Spieltagspunkte.</p>';
   }
 
-  if(tab==='backup') {
+  if(tab==='table'){
+    out='<h2>Manager-Tabelle</h2>'+
+      [...state.managers].sort((a,b)=>b.points-a.points).map((m,i)=>
+        `<div class="card">${i+1}. <b>${esc(m.name)}</b> —
+        <strong>${m.points} Punkte</strong> · Budget ${euro(m.cash)}</div>`
+      ).join('');
+  }
+
+  if(tab==='players'){
+    out=`<h2>Spieler verwalten</h2>
+      <p class="muted">Spieler hinzufügen, bearbeiten oder löschen.</p>
+      <div class="card">
+        <h3>${editingId===null?'Neuen Spieler anlegen':'Spieler bearbeiten'}</h3>
+        <div class="form-grid">
+          <label>Spieler
+            <input id="editName" maxlength="100" placeholder="Spielername">
+          </label>
+          <label>Position
+            <select id="editPosition">
+              <option value="GK">GK – Torwart</option>
+              <option value="DF">DF – Verteidiger</option>
+              <option value="O">O – Offensive</option>
+              <option value="ST">ST – Stürmer</option>
+            </select>
+          </label>
+          <label>Wert (Mio.)
+            <input id="editValue" type="number" min="0.01" step="0.01" placeholder="5.00">
+          </label>
+        </div>
+        <button onclick="savePlayer()">💾 ${editingId===null?'Spieler hinzufügen':'Speichern'}</button>
+        ${editingId!==null?'<button class="secondary" onclick="editingId=null;render()">Abbrechen</button>':''}
+      </div>
+      <h3>Alle Spieler (${state.players.length})</h3>`+
+      state.players.map(p=>`
+        <div class="card row">
+          <div>
+            <b>${esc(p.name)}</b> ${tag(p)}
+            <div class="muted">
+              ${esc(p.team)} · ${euro(p.value)} · ${p.owner>=0?'Im Kader':'Frei'}
+            </div>
+          </div>
+          <div>
+            <button onclick="editPlayer(${p.id})">Bearbeiten</button>
+            <button class="danger" onclick="deletePlayer(${p.id})"
+              ${state.locked?'disabled':''}>Löschen</button>
+          </div>
+        </div>`).join('');
+  }
+
+  if(tab==='backup'){
     out='<h2>Sicherung</h2>'+
-    '<p>Speichere regelmäßig eine Sicherung.</p>'+
-    '<button onclick="backup()">Sicherung herunterladen</button>'+
-    '<p><label>Sicherung importieren <input type="file" accept=".json,application/json" onchange="restore(event)"></label></p>'+
-    '<button onclick="reset()">Test zurücksetzen</button>';
+      '<p>Speichere regelmäßig eine JSON-Sicherung, da Browserdaten verloren gehen können.</p>'+
+      '<button onclick="backup()">Sicherung herunterladen</button>'+
+      '<p><label>Sicherung importieren <input type="file" accept=".json,application/json" onchange="restore(event)"></label></p>'+
+      '<button class="danger" onclick="reset()">Test zurücksetzen</button>';
   }
 
   $('app').innerHTML=out;
-
-  if(tab==='players'&&editingId!==null) {
+  if(tab==='players'&&editingId!==null){
     let p=playerById(editingId);
-    if(p) {
+    if(p){
       $('editName').value=p.name;
-      $('editPosition').value=p.position||'DF';
+      $('editPosition').value=p.position;
       $('editValue').value=p.value;
     }
   }
 }
 
-function backup() {
+function backup(){
   let a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(
+  let url=URL.createObjectURL(new Blob(
     [JSON.stringify(state,null,2)],
     {type:'application/json'}
   ));
+  a.href=url;
   a.download='hockey-sicherung.json';
   a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
-function restore(e) {
+function restore(e){
   let f=e.target.files[0];
   if(!f)return;
   f.text().then(t=>{
     let s=JSON.parse(t);
     if(!Array.isArray(s.players)||!Array.isArray(s.managers))
       throw Error('Ungültige Datei');
+    if(!confirm('Aktuellen Spielstand durch diese Sicherung ersetzen?'))return;
     state=s;
+    normalize();
+    selected=0;
     editingId=null;
-    save();
-    render();
+    save();render();
     notice('Sicherung geladen');
   }).catch(()=>alert('Sicherung konnte nicht geladen werden'));
 }
 
-function reset() {
-  if(confirm('Wirklich alle Testdaten löschen?')) {
+function reset(){
+  if(confirm('Wirklich alle Testdaten löschen?')){
     state=fresh();
+    normalize();
     selected=0;
     editingId=null;
-    save();
-    render();
+    save();render();
   }
 }
 
