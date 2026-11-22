@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#101827">
 <title>LEGO Hockey Manager</title>
+
 <style>
 *{box-sizing:border-box}
 
@@ -37,8 +38,15 @@ button{
 
 button:disabled{opacity:.35}
 
-nav{display:flex;flex-wrap:wrap}
-nav button{background:#24344c;color:#fff}
+nav{
+  display:flex;
+  flex-wrap:wrap;
+}
+
+nav button{
+  background:#24344c;
+  color:#fff;
+}
 
 .card{
   background:#1e293b;
@@ -55,7 +63,11 @@ nav button{background:#24344c;color:#fff}
   flex-wrap:wrap;
 }
 
-.muted{color:#cbd5e1;font-size:13px}
+.muted{
+  color:#cbd5e1;
+  font-size:13px;
+}
+
 .danger{background:#f87171}
 
 .status{
@@ -72,10 +84,25 @@ nav button{background:#24344c;color:#fff}
   font-weight:bold;
 }
 
-.GK{background:#facc15;color:#111}
-.DF{background:#dc2626;color:white}
-.O{background:#2563eb;color:white}
-.ST{background:#171717;color:white}
+.GK{
+  background:#facc15;
+  color:#111;
+}
+
+.DF{
+  background:#dc2626;
+  color:white;
+}
+
+.O{
+  background:#2563eb;
+  color:white;
+}
+
+.ST{
+  background:#171717;
+  color:white;
+}
 
 .rink{
   position:relative;
@@ -118,7 +145,10 @@ nav button{background:#24344c;color:#fff}
   gap:7px;
 }
 
-.bench button{width:100%;margin:0}
+.bench button{
+  width:100%;
+  margin:0;
+}
 
 .form{
   display:flex;
@@ -149,7 +179,9 @@ dialog{
   overflow:auto;
 }
 
-dialog::backdrop{background:#0009}
+dialog::backdrop{
+  background:#0009;
+}
 
 .choice{
   display:block;
@@ -167,21 +199,43 @@ dialog::backdrop{background:#0009}
 }
 </style>
 </head>
+
 <body>
 
 <h1>🏒 LEGO Hockey Manager</h1>
+
 <p class="muted">
   Private Liga · Aufstellungen · Spielleiter
 </p>
 
 <nav>
-  <button onclick="go('market')">Transfermarkt</button>
-  <button onclick="go('teams')">Mannschaften</button>
-  <button onclick="go('round')">Spieltag</button>
-  <button onclick="go('table')">Tabelle</button>
-  <button onclick="go('players')">Spieler verwalten</button>
-  <button onclick="go('admin')">🛡️ Spielleiter</button>
-  <button onclick="go('backup')">Sicherung</button>
+  <button onclick="go('market')">
+    Transfermarkt
+  </button>
+
+  <button onclick="go('teams')">
+    Mannschaften
+  </button>
+
+  <button onclick="go('round')">
+    Spieltag
+  </button>
+
+  <button onclick="go('table')">
+    Tabelle
+  </button>
+
+  <button onclick="go('players')">
+    Spieler verwalten
+  </button>
+
+  <button onclick="go('admin')">
+    🛡️ Spielleiter
+  </button>
+
+  <button onclick="go('backup')">
+    Sicherung
+  </button>
 </nav>
 
 <p id="notice" role="status"></p>
@@ -197,10 +251,18 @@ const POS=['GK','DF','O','ST'];
 const BENCH=['GK','DF','O','ST'];
 
 const FORM={
-  Ausgewogen:['GK','DF','DF','O','O','ST'],
-  Defensiv:['GK','DF','DF','DF','ST','ST'],
-  Zentrum:['GK','DF','DF','O','ST','ST'],
-  Abwehrbollwerk:['GK','DF','DF','DF','DF','ST']
+  Ausgewogen:[
+    'GK','DF','DF','O','O','ST'
+  ],
+  Defensiv:[
+    'GK','DF','DF','DF','ST','ST'
+  ],
+  Zentrum:[
+    'GK','DF','DF','O','ST','ST'
+  ],
+  Abwehrbollwerk:[
+    'GK','DF','DF','DF','DF','ST'
+  ]
 };
 
 const names=[
@@ -215,7 +277,13 @@ const names=[
   'Elias Turbo',
   'Max Polar',
   'Oskar Wolf',
-  'Jan Rakete'
+  'Jan Rakete',
+  'Nico Eis',
+  'Tom Blitz',
+  'Felix Frost',
+  'Lars Komet',
+  'Emil Sturm',
+  'Jona Nord'
 ];
 
 const $=id=>document.getElementById(id);
@@ -231,31 +299,44 @@ const esc=s=>String(s??'').replace(
   }[c])
 );
 
-const euro=n=>Number(n).toFixed(2)+' Mio.';
+const euro=n=>
+  Number(n).toFixed(2)+' Mio.';
 
 function fresh(){
   return {
     round:1,
+
     managers:[
       'Jakob',
       'Lorenz',
       'Keks & Rex',
-      'Kalle'
+      'Kalle',
+      'Manager 5'
     ].map(name=>({
       name,
       cash:30,
       points:0
     })),
+
     players:names.map((name,id)=>({
       id,
       name,
-      team:['Eisbären','Wölfe','Pinguine'][id%3],
+      team:[
+        'Eisbären',
+        'Wölfe',
+        'Pinguine'
+      ][id%3],
       position:POS[id%4],
       value:3+id%5,
       owner:-1,
       points:0
     })),
-    market:[0,1,2,3],
+
+    market:Array.from(
+      {length:15},
+      (_,i)=>i
+    ),
+
     lineups:{},
     locked:false,
     adminIndex:0
@@ -276,8 +357,11 @@ let tab='market';
 let selected=0;
 let editing=null;
 function normalize(){
-  if(!state||!Array.isArray(state.players)||
-     !Array.isArray(state.managers)){
+  if(
+    !state||
+    !Array.isArray(state.players)||
+    !Array.isArray(state.managers)
+  ){
     state=fresh();
   }
 
@@ -289,28 +373,47 @@ function normalize(){
     state.lineups:{};
 
   state.locked=!!state.locked;
-  state.adminIndex=0;
 
-  // Vorhandene Managerdaten behalten,
-  // aber die vereinbarten Namen übernehmen.
+  // Fünf Manager mit ihren bisherigen Daten
   const managerNames=[
-    'Jakob','Lorenz','Keks & Rex','Kalle'
+    'Jakob',
+    'Lorenz',
+    'Keks & Rex',
+    'Kalle',
+    'Manager 5'
   ];
 
   state.managers.forEach((m,i)=>{
-    if(i<managerNames.length){
+    if(
+      i<5&&(
+        /^Manager (Rot|Blau|Grün)$/i.test(m.name||'')||
+        /^Manager [1-5]$/i.test(m.name||'')
+      )
+    ){
       m.name=managerNames[i];
     }
   });
 
-  while(state.managers.length<4){
+  while(state.managers.length<5){
+    const i=state.managers.length;
+
     state.managers.push({
-      name:managerNames[state.managers.length],
+      name:managerNames[i],
       cash:30,
       points:0
     });
   }
 
+  // Aktuellen Administrator beibehalten
+  if(
+    !Number.isInteger(state.adminIndex)||
+    state.adminIndex<0||
+    state.adminIndex>=state.managers.length
+  ){
+    state.adminIndex=0;
+  }
+
+  // Spielerdaten ergänzen
   state.players.forEach(p=>{
     p.id=Number(p.id);
     p.owner=Number(p.owner??-1);
@@ -322,6 +425,7 @@ function normalize(){
     }
   });
 
+  // Aufstellungen für alle fünf Manager
   state.managers.forEach((m,i)=>{
     m.cash=Number(m.cash)||0;
     m.points=Number(m.points)||0;
@@ -351,14 +455,42 @@ function normalize(){
     );
   });
 
+  // Nur freie Spieler dürfen auf den Markt
   state.market=state.market
     .map(Number)
     .filter(id=>state.players.some(
       p=>p.id===id&&p.owner===-1
     ));
+
+  // Bestehende Angebote behalten
+  // und auf 15 Spieler auffüllen
+  const extra=state.players.filter(
+    p=>p.owner===-1&&
+    !state.market.includes(p.id)
+  );
+
+  state.market.push(
+    ...shuffle(extra)
+      .slice(
+        0,
+        Math.max(0,15-state.market.length)
+      )
+      .map(p=>p.id)
+  );
 }
 
 normalize();
+
+// Aktualisierte Manager und Marktangebote speichern
+try{
+  localStorage.setItem(
+    KEY,
+    JSON.stringify(state)
+  );
+}catch(e){}
+
+
+// SPIELSTAND SPEICHERN
 
 function save(){
   try{
@@ -397,6 +529,9 @@ function nextId(){
   )+1;
 }
 
+
+// ADMINISTRATOR
+
 function isAdmin(){
   return selected===state.adminIndex;
 }
@@ -405,12 +540,17 @@ function guard(){
   if(isAdmin())return true;
 
   alert(
-    'Nur Jakob (Admin) darf das. '+
-    'Wähle Jakob im Manager-Menü.'
+    'Nur der aktuelle Admin darf das. '+
+    'Wähle '+
+    state.managers[state.adminIndex].name+
+    ' im Manager-Menü.'
   );
 
   return false;
 }
+
+
+// SPIELERPOSITION ANZEIGEN
 
 function badge(p){
   return `<span class="tag ${p.position}">
@@ -418,37 +558,46 @@ function badge(p){
   </span>`;
 }
 
+
+// MANAGERAUSWAHL
+
 function managerSelect(){
   return `<label>Manager:
     <select onchange="
       selected=Number(this.value);
       render()
     ">
-    ${state.managers.map((m,i)=>`
-      <option value="${i}"
-        ${selected===i?'selected':''}>
-        ${esc(m.name)}
-        ${i===state.adminIndex?' 🛡️':''}
-      </option>
-    `).join('')}
+      ${state.managers.map((m,i)=>`
+        <option value="${i}"
+          ${selected===i?'selected':''}>
+          ${esc(m.name)}
+          ${i===state.adminIndex?' 🛡️':''}
+        </option>
+      `).join('')}
     </select>
   </label>`;
 }
+
+
+// SPIELERKARTE
 
 function card(p,action=''){
   return `<div class="card row">
     <div>
       <b>${esc(p.name)}</b>
       ${badge(p)}
+
       <div class="muted">
         ${esc(p.team)} ·
         ${euro(p.value)} ·
         ${p.points} Punkte
       </div>
     </div>
+
     ${action}
   </div>`;
 }
+
 
 // SPIELER KAUFEN
 
@@ -456,10 +605,12 @@ function buy(id){
   let p=player(id);
   let m=state.managers[selected];
 
-  if(!p||
-     p.owner!==-1||
-     !state.market.includes(id)||
-     m.cash<p.value){
+  if(
+    !p||
+    p.owner!==-1||
+    !state.market.includes(id)||
+    m.cash<p.value
+  ){
     return;
   }
 
@@ -475,8 +626,9 @@ function buy(id){
 
   save();
   render();
-  notice('Spieler gekauft.');
+  notice('Gekauft');
 }
+
 
 // SPIELER AUS AUFSTELLUNGEN ENTFERNEN
 
@@ -491,6 +643,7 @@ function removeLineups(id){
     );
   });
 }
+
 
 // SPIELER VERKAUFEN
 
@@ -517,7 +670,8 @@ function sell(id){
   render();
 }
 
-// ZUFÄLLIGE REIHENFOLGE
+
+// SPIELER ZUFÄLLIG MISCHEN
 
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
@@ -531,8 +685,9 @@ function shuffle(a){
   return a;
 }
 
+
 // TRANSFERMARKT MANUELL ERNEUERN
-// NUR JAKOB ALS ADMIN
+// NUR DURCH DEN AKTUELLEN ADMIN
 
 function refreshMarket(){
   if(!guard())return;
@@ -553,7 +708,7 @@ function refreshMarket(){
   state.market=free
     .slice(
       0,
-      Math.min(4,free.length)
+      Math.min(15,free.length)
     )
     .map(p=>p.id);
 
@@ -562,6 +717,7 @@ function refreshMarket(){
 
   notice('Transfermarkt erneuert.');
 }
+
 
 // FORMATION WECHSELN
 
@@ -597,7 +753,8 @@ function formationChange(v){
   render();
 }
 
-// SPIELER AUF DEM FELD AUSWÄHLEN
+
+// SPIELER AUF DEM EISHOCKEYFELD AUSWÄHLEN
 
 function choose(kind,index){
   if(state.locked)return;
@@ -635,8 +792,10 @@ function choose(kind,index){
     </button>
 
     ${options.map(p=>`
-      <button class="choice"
-        data-id="${p.id}">
+      <button
+        class="choice"
+        data-id="${p.id}"
+      >
         ${esc(p.name)} · ${euro(p.value)}
       </button>
     `).join('')||
@@ -916,7 +1075,7 @@ function totals(){
 
 
 // AUFSTELLUNGEN SPERREN
-// NUR ADMIN JAKOB
+// NUR DER AKTUELLE ADMIN
 
 function lock(){
   if(!guard()||state.locked){
@@ -937,7 +1096,7 @@ function lock(){
 
 
 // SPIELTAG ABSCHLIESSEN
-// NUR ADMIN JAKOB
+// NUR DER AKTUELLE ADMIN
 
 function finish(){
   if(!guard()){
@@ -984,13 +1143,14 @@ function finish(){
   state.round++;
   state.locked=false;
 
-  // Transfermarkt automatisch erneuern
+  // Transfermarkt automatisch erneuern:
+  // bis zu 15 freie Spieler
   state.market=shuffle(
     state.players.filter(
       p=>p.owner===-1
     )
   )
-  .slice(0,4)
+  .slice(0,15)
   .map(p=>p.id);
 
   save();
@@ -1006,7 +1166,7 @@ function finish(){
 
 
 // SPIELERPUNKTE EINTRAGEN
-// NUR ADMIN JAKOB
+// NUR DER AKTUELLE ADMIN
 
 function setPoints(id,v){
   if(!guard()){
@@ -1151,7 +1311,7 @@ function deletePlayer(id){
 
 
 // MANAGER UMBENENNEN
-// NUR ADMIN JAKOB
+// NUR DER AKTUELLE ADMIN
 
 function rename(i){
   if(!guard()){
@@ -1181,355 +1341,568 @@ function rename(i){
   save();
   render();
 }
+
+
+// ADMINISTRATOR WECHSELN
+
+function changeAdmin(i){
+  if(!guard()){
+    return;
+  }
+
+  if(i===state.adminIndex){
+    return;
+  }
+
+  const neuerAdmin=state.managers[i].name;
+
+  if(!confirm(
+    neuerAdmin+
+    ' zum neuen Administrator machen?'
+  )){
+    return;
+  }
+
+  state.adminIndex=i;
+  selected=i;
+
+  save();
+  render();
+
+  notice(
+    neuerAdmin+
+    ' ist jetzt Administrator.'
+  );
+}
 function render(){
-  let out='';
+  if(
+    selected<0||
+    selected>=state.managers.length
+  ){
+    selected=0;
+  }
+
+  let html='';
 
   // TRANSFERMARKT
+
   if(tab==='market'){
-    out='<h2>Transfermarkt</h2>'+
-      managerSelect()+
-      `<p>Budget:
-        <b>${euro(state.managers[selected].cash)}</b>
-      </p>`+
-      state.market.map(id=>{
-        let p=player(id);
+    let m=state.managers[selected];
 
-        return p?card(
-          p,
-          `<button onclick="buy(${id})"
-          ${state.managers[selected].cash<p.value?'disabled':''}>
+    let offers=state.market
+      .map(player)
+      .filter(p=>p&&p.owner===-1);
+
+    html=`
+      <h2>Transfermarkt</h2>
+
+      ${managerSelect()}
+
+      <p class="status">
+        Kontostand:
+        <b>${euro(m.cash)}</b>
+      </p>
+
+      <p class="muted">
+        ${offers.length} von 15 möglichen
+        Transfermarktspielern verfügbar.
+      </p>
+
+      ${offers.map(p=>card(
+        p,
+        `<button
+          onclick="buy(${p.id})"
+          ${m.cash<p.value?'disabled':''}
+        >
           Kaufen
-          </button>`
-        ):'';
-      }).join('')+
-      (isAdmin()?
-        `<button onclick="refreshMarket()">
-          🔄 Transfermarkt erneuern (Admin)
-        </button>`:''
-      );
+        </button>`
+      )).join('')}
 
-    if(!state.market.length){
-      out+='<p>Keine Angebote. Admin kann den Markt erneuern.</p>';
-    }
+      ${offers.length===0?
+        '<p>Keine freien Spieler verfügbar.</p>':
+        ''
+      }
+
+      <p class="muted">
+        Der Spielleiter kann den Transfermarkt
+        erneuern. Nach jedem abgeschlossenen
+        Spieltag werden die Angebote
+        automatisch neu zusammengestellt.
+      </p>
+    `;
   }
 
-  // MANNSCHAFTEN UND SPIELFELD
+
+  // MANNSCHAFTEN
+
   if(tab==='teams'){
-    out='<h2>Mannschaften</h2>'+
-      managerSelect()+
-      `<p>Budget:
-        ${euro(state.managers[selected].cash)}
-      </p>`+
-      rink()+
-      '<h3>Mein Kader</h3>'+
-      state.players
-        .filter(p=>p.owner===selected)
-        .map(p=>card(
-          p,
-          `<button onclick="sell(${p.id})"
-          ${state.locked?'disabled':''}>
-          Verkaufen
-          </button>`
-        )).join('');
+    let m=state.managers[selected];
 
-    if(!state.players.some(p=>p.owner===selected)){
-      out+='<p>Keine Spieler im Kader. Kaufe Spieler auf dem Transfermarkt.</p>';
-    }
+    let owned=state.players.filter(
+      p=>p.owner===selected
+    );
+
+    html=`
+      <h2>Mannschaften</h2>
+
+      ${managerSelect()}
+
+      <p class="status">
+        <b>${esc(m.name)}</b><br>
+        Kontostand: ${euro(m.cash)}<br>
+        Kader: ${owned.length} Spieler
+      </p>
+
+      ${rink()}
+
+      <h3>Mein Kader</h3>
+
+      ${owned.map(p=>card(
+        p,
+        `<button
+          onclick="sell(${p.id})"
+          ${state.locked?'disabled':''}
+        >
+          Verkaufen
+        </button>`
+      )).join('')}
+
+      ${owned.length===0?
+        '<p>Du hast noch keine Spieler gekauft.</p>':
+        ''
+      }
+    `;
   }
+
 
   // SPIELTAG
+
   if(tab==='round'){
-    out=`<h2>Spieltag ${state.round}</h2>`+
-      managerSelect()+
-      `<p class="status">
+    let t=totals();
+
+    html=`
+      <h2>Spieltag ${state.round}</h2>
+
+      ${managerSelect()}
+
+      <p class="status">
         ${state.locked?
           '🔒 Aufstellungen gesperrt':
-          '🔓 Aufstellungen offen'}
-      </p>`+
-      (isAdmin()?
-        state.players.map(p=>`
+          '🔓 Aufstellungen noch offen'
+        }
+      </p>
+
+      <h3>Aktuelle Spieltagspunkte</h3>
+
+      ${state.managers.map((m,i)=>`
+        <div class="card row">
+          <b>${esc(m.name)}</b>
+          <b>${t[i]} Punkte</b>
+        </div>
+      `).join('')}
+
+      ${isAdmin()?`
+        <div class="card">
+          <h3>Spielleiter-Aktionen</h3>
+
+          <button
+            onclick="lock()"
+            ${state.locked?'disabled':''}
+          >
+            🔒 Aufstellungen sperren
+          </button>
+
+          <button
+            onclick="finish()"
+            ${!state.locked?'disabled':''}
+          >
+            Spieltag abschließen
+          </button>
+        </div>
+
+        <h3>Spielerpunkte eintragen</h3>
+
+        ${state.players.map(p=>`
           <div class="card row">
             <div>
-              ${esc(p.name)} ${badge(p)}
+              <b>${esc(p.name)}</b>
+              ${badge(p)}
             </div>
-            <label>
-              Punkte
-              <input
-                type="number"
-                style="width:85px"
-                step="1"
-                value="${p.points}"
-                onchange="setPoints(${p.id},this.value)"
-              >
-            </label>
+
+            <input
+              type="number"
+              value="${p.points}"
+              style="width:90px"
+              onchange="
+                setPoints(
+                  ${p.id},
+                  this.value
+                )
+              "
+            >
           </div>
-        `).join('')+
-        (state.locked?
-          `<button onclick="finish()">
-            ✅ Spieltag abschließen
-          </button>`:
-          `<button onclick="lock()">
-            🔒 Aufstellungen sperren
-          </button>`):
-        `<p>
-          Nur Jakob (Admin) trägt Spielerpunkte
-          ein und schließt Spieltage ab.
-        </p>`)+
-      `<p class="muted">
-        Unbesetzter Stammplatz: −4 Punkte.
-        Negatives Budget: insgesamt
-        0 Spieltagspunkte.
-        Ersatzbank ist freiwillig.
-      </p>`;
+        `).join('')}
+      `:''}
+    `;
   }
+
 
   // TABELLE
+
   if(tab==='table'){
-    out='<h2>Manager-Tabelle</h2>'+
-      [...state.managers]
-        .sort((a,b)=>b.points-a.points)
-        .map((m,i)=>`
-          <div class="card">
-            ${i+1}.
-            <b>${esc(m.name)}</b>
-            · ${m.points} Punkte
-            · ${euro(m.cash)}
+    let ranking=state.managers
+      .map((m,i)=>({...m,index:i}))
+      .sort((a,b)=>b.points-a.points);
+
+    html=`
+      <h2>Tabelle</h2>
+
+      <p class="muted">
+        Gesamtwertung nach
+        ${state.round-1}
+        abgeschlossenen Spieltagen.
+      </p>
+
+      ${ranking.map((m,i)=>`
+        <div class="card row">
+          <div>
+            <b>
+              ${i+1}. ${esc(m.name)}
+            </b>
+
+            ${m.index===state.adminIndex?
+              ' 🛡️':''}
           </div>
-        `).join('');
+
+          <b>${m.points} Punkte</b>
+        </div>
+      `).join('')}
+    `;
   }
 
-  // SPIELERVERWALTUNG
-  if(tab==='players'){
-    out='<h2>Spieler verwalten</h2>'+
-      managerSelect();
 
-    if(isAdmin()){
-      out+=`
+  // SPIELER VERWALTEN
+
+  if(tab==='players'){
+    html=`
+      <h2>Spieler verwalten</h2>
+
+      ${managerSelect()}
+
+      ${isAdmin()?`
         <div class="card">
           <h3>
             ${editing===null?
-              'Spieler anlegen':
-              'Spieler bearbeiten'}
+              'Neuen Spieler hinzufügen':
+              'Spieler bearbeiten'
+            }
           </h3>
 
-          <div class="form">
-            <label>
-              Name
-              <input
-                id="editName"
-                maxlength="100"
-              >
-            </label>
+          ${(()=>{
+            let p=editing===null?
+              null:player(editing);
 
-            <label>
-              Position
-              <select id="editPos">
-                ${POS.map(p=>`
-                  <option>${p}</option>
-                `).join('')}
-              </select>
-            </label>
+            return `
+              <div class="form">
+                <label>
+                  Name
+                  <input
+                    id="editName"
+                    value="${esc(p?.name||'')}"
+                  >
+                </label>
 
-            <label>
-              Wert (Mio.)
-              <input
-                id="editValue"
-                type="number"
-                min=".01"
-                step=".01"
-              >
-            </label>
-          </div>
+                <label>
+                  Position
+                  <select id="editPos">
+                    ${POS.map(pos=>`
+                      <option
+                        value="${pos}"
+                        ${p?.position===pos?
+                          'selected':''}
+                      >
+                        ${pos}
+                      </option>
+                    `).join('')}
+                  </select>
+                </label>
+
+                <label>
+                  Marktwert in Mio.
+                  <input
+                    id="editValue"
+                    type="text"
+                    value="${p?.value??3}"
+                  >
+                </label>
+              </div>
+            `;
+          })()}
 
           <button onclick="savePlayer()">
-            💾 Speichern
+            Speichern
           </button>
 
-          ${editing!==null?
-            `<button onclick="
+          ${editing!==null?`
+            <button onclick="
               editing=null;
               render()
             ">
               Abbrechen
-            </button>`:''}
+            </button>
+          `:''}
         </div>
-      `;
-    }
 
-    out+=`<h3>
-      Alle Spieler (${state.players.length})
-    </h3>`+
-      state.players.map(p=>card(
-        p,
-        isAdmin()?
-          `<button onclick="editPlayer(${p.id})">
-            Bearbeiten
-          </button>
-          <button
-            class="danger"
-            onclick="deletePlayer(${p.id})"
-            ${state.locked?'disabled':''}
-          >
-            Löschen
-          </button>`:''
-      )).join('');
+        <h3>Alle Spieler</h3>
+
+        ${state.players.map(p=>card(
+          p,
+          `<div>
+            <button onclick="
+              editPlayer(${p.id})
+            ">
+              Bearbeiten
+            </button>
+
+            <button
+              class="danger"
+              onclick="deletePlayer(${p.id})"
+              ${state.locked?'disabled':''}
+            >
+              Löschen
+            </button>
+          </div>`
+        )).join('')}
+      `:`
+        <p class="status">
+          Nur der aktuelle Administrator
+          darf Spieler verwalten.
+        </p>
+      `}
+    `;
   }
 
-  // SPIELLEITER / ADMIN JAKOB
+
+  // SPIELLEITER / ADMIN
+
   if(tab==='admin'){
-    out='<h2>🛡️ Spielleiter</h2>'+
-      managerSelect()+
-      (isAdmin()?
-        `
+    html=`
+      <h2>🛡️ Spielleiter</h2>
+
+      ${managerSelect()}
+
+      <p class="status">
+        Aktueller Administrator:
+        <b>
+          ${esc(
+            state.managers[state.adminIndex].name
+          )}
+        </b>
+      </p>
+
+      ${isAdmin()?`
         <div class="card">
           <h3>Transfermarkt</h3>
 
-          <button onclick="refreshMarket()">
-            🔄 Angebote neu mischen
-          </button>
-
-          <p class="muted">
-            Es werden bis zu vier freie
-            Spieler angeboten.
-            Gekaufte Spieler bleiben
-            bei ihren Managern.
+          <p>
+            Aktuell:
+            ${state.market.length}
+            von 15 möglichen Angeboten.
           </p>
+
+          <button onclick="refreshMarket()">
+            🔄 Transfermarkt erneuern
+          </button>
         </div>
 
         <div class="card">
-          <h3>Manager umbenennen</h3>
+          <h3>Manager verwalten</h3>
+
+          <p class="muted">
+            Alle fünf Manager können
+            umbenannt werden.
+            Du kannst außerdem einen
+            anderen Manager zum
+            Administrator machen.
+          </p>
 
           ${state.managers.map((m,i)=>`
-            <div class="row">
-              <span>
-                ${esc(m.name)}
-                ${i===state.adminIndex?
-                  ' (Admin)':''}
-              </span>
+            <div class="card">
+              <div class="row">
+                <div>
+                  <b>${esc(m.name)}</b>
+                  ${i===state.adminIndex?
+                    ' 🛡️ Admin':''}
+                </div>
 
-              <button onclick="rename(${i})">
-                Umbenennen
-              </button>
+                <div>
+                  <button
+                    onclick="rename(${i})"
+                  >
+                    Umbenennen
+                  </button>
+
+                  ${i!==state.adminIndex?`
+                    <button
+                      onclick="changeAdmin(${i})"
+                    >
+                      Zum Admin machen
+                    </button>
+                  `:''}
+                </div>
+              </div>
             </div>
           `).join('')}
         </div>
 
         <div class="card">
-          <h3>
-            Spieltag ${state.round}
-          </h3>
+          <h3>Spieltagsverwaltung</h3>
 
-          <button onclick="go('round')">
-            Punkte & Spieltag verwalten
+          <p>
+            Aktueller Spieltag:
+            <b>${state.round}</b>
+          </p>
+
+          <button
+            onclick="lock()"
+            ${state.locked?'disabled':''}
+          >
+            🔒 Aufstellungen sperren
+          </button>
+
+          <button
+            onclick="finish()"
+            ${!state.locked?'disabled':''}
+          >
+            Spieltag abschließen
           </button>
         </div>
-        `:
-        `<p>
-          Nur Jakob (Admin) darf den
-          Transfermarkt erneuern,
-          Manager umbenennen und
-          Spieltage verwalten.
-        </p>`);
+      `:`
+        <p class="status">
+          Wähle den aktuellen
+          Administrator aus,
+          um die Spielleiter-Funktionen
+          zu verwenden.
+        </p>
+      `}
+    `;
   }
 
-  // SICHERUNG
+
+  // DATENSICHERUNG
+
   if(tab==='backup'){
-    out='<h2>Sicherung</h2>'+
-      `<button onclick="backup()">
-        JSON-Sicherung herunterladen
-      </button>`+
-      `<p>
-        <label>
-          Sicherung importieren
-          <input
-            type="file"
-            accept=".json,application/json"
-            onchange="restore(event)"
-          >
-        </label>
-      </p>`+
-      `<button
-        class="danger"
-        onclick="reset()"
-      >
-        Test zurücksetzen
-      </button>`+
-      `<p class="muted">
-        Daten werden lokal auf diesem
-        Gerät gespeichert.
-        Andere Geräte synchronisieren
-        sich nicht automatisch.
-        Die Admin-Rolle ist in dieser
-        Offline-Version nicht
-        passwortgeschützt.
-      </p>`;
+    html=`
+      <h2>Datensicherung</h2>
+
+      <div class="card">
+        <h3>Spielstand sichern</h3>
+
+        <p>
+          Speichere alle Manager,
+          Spieler, Marktwerte,
+          Aufstellungen und Punkte
+          als JSON-Datei.
+        </p>
+
+        <button onclick="backup()">
+          Sicherung herunterladen
+        </button>
+      </div>
+
+      <div class="card">
+        <h3>Spielstand wiederherstellen</h3>
+
+        <input
+          type="file"
+          accept=".json,application/json"
+          onchange="
+            restore(this.files[0])
+          "
+        >
+      </div>
+
+      <div class="card">
+        <h3>Neues Spiel starten</h3>
+
+        <p class="muted">
+          Achtung: Der bisherige
+          Spielstand wird gelöscht.
+          Erstelle vorher eine Sicherung.
+        </p>
+
+        <button
+          class="danger"
+          onclick="resetGame()"
+        >
+          Spielstand zurücksetzen
+        </button>
+      </div>
+    `;
   }
 
-  $('app').innerHTML=out;
-
-  if(
-    tab==='players'&&
-    isAdmin()&&
-    editing!==null
-  ){
-    let p=player(editing);
-
-    if(p){
-      $('editName').value=p.name;
-      $('editPos').value=p.position;
-      $('editValue').value=p.value;
-    }
-  }
+  $('app').innerHTML=html;
 }
 
 
-// DATENSICHERUNG HERUNTERLADEN
+// SICHERUNG HERUNTERLADEN
 
 function backup(){
-  let url=URL.createObjectURL(
-    new Blob(
-      [JSON.stringify(state,null,2)],
-      {type:'application/json'}
-    )
+  let data=JSON.stringify(
+    state,
+    null,
+    2
   );
+
+  let blob=new Blob(
+    [data],
+    {type:'application/json'}
+  );
+
+  let url=URL.createObjectURL(blob);
 
   let a=document.createElement('a');
 
   a.href=url;
-  a.download='hockey-sicherung.json';
-  a.click();
+  a.download='lego-hockey-manager-backup.json';
 
-  setTimeout(
-    ()=>URL.revokeObjectURL(url),
-    1500
-  );
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
 }
 
 
-// DATENSICHERUNG WIEDERHERSTELLEN
+// SICHERUNG WIEDERHERSTELLEN
 
-function restore(e){
-  let f=e.target.files[0];
+async function restore(file){
+  if(!file)return;
 
-  if(!f)return;
+  if(!confirm(
+    'Aktuellen Spielstand durch '+
+    'die Sicherung ersetzen?'
+  )){
+    return;
+  }
 
-  f.text().then(t=>{
-    let s=JSON.parse(t);
+  try{
+    let data=JSON.parse(
+      await file.text()
+    );
 
     if(
-      !Array.isArray(s.players)||
-      !Array.isArray(s.managers)
+      !data||
+      !Array.isArray(data.players)||
+      !Array.isArray(data.managers)
     ){
-      throw Error();
+      throw Error(
+        'Ungültige Sicherungsdatei'
+      );
     }
 
-    if(!confirm(
-      'Aktuellen Spielstand durch Sicherung ersetzen?'
-    )){
-      return;
-    }
+    state=data;
 
-    state=s;
     normalize();
 
     selected=0;
@@ -1538,30 +1911,51 @@ function restore(e){
     save();
     render();
 
-    notice('Sicherung geladen.');
-  }).catch(()=>{
-    alert('Ungültige Sicherung.');
-  });
+    notice(
+      'Spielstand erfolgreich wiederhergestellt.'
+    );
+
+  }catch(e){
+    alert(
+      'Wiederherstellung fehlgeschlagen: '+
+      e.message
+    );
+  }
 }
 
 
 // SPIELSTAND ZURÜCKSETZEN
 
-function reset(){
+function resetGame(){
+  if(!guard())return;
+
   if(!confirm(
-    'Alle Daten zurücksetzen?'
+    'Wirklich alle bisherigen '+
+    'Spieldaten löschen?'
+  )){
+    return;
+  }
+
+  if(!confirm(
+    'Letzte Bestätigung: '+
+    'Neues Spiel starten?'
   )){
     return;
   }
 
   state=fresh();
-  normalize();
 
   selected=0;
   editing=null;
+  tab='market';
 
+  normalize();
   save();
   render();
+
+  notice(
+    'Neues Spiel gestartet.'
+  );
 }
 
 
@@ -1572,6 +1966,5 @@ render();
 </script>
 </body>
 </html>
-
 
 
