@@ -1,841 +1,233 @@
 
 <!doctype html>
-<html lang="de">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#101827">
-<title>LEGO Hockey Manager</title>
-
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101827"><title>LEGO Hockey Manager</title>
 <style>
-*{box-sizing:border-box}
-
-body{
-  font:16px system-ui;
-  background:#101827;
-  color:#f2f5fa;
-  margin:0 auto;
-  padding:14px;
-  max-width:900px;
-}
-
-h1{font-size:25px}
-
-button,input,select{
-  font:inherit;
-  padding:10px;
-  border:1px solid #64748b;
-  border-radius:9px;
-}
-
-button{
-  background:#38bdf8;
-  color:#071523;
-  font-weight:700;
-  margin:3px;
-  cursor:pointer;
-}
-
-button:disabled{opacity:.35}
-
-nav{
-  display:flex;
-  flex-wrap:wrap;
-}
-
-nav button{
-  background:#24344c;
-  color:#fff;
-}
-
-.card{
-  background:#1e293b;
-  border-radius:12px;
-  padding:13px;
-  margin:10px 0;
-}
-
-.row{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  flex-wrap:wrap;
-}
-
-.muted{
-  color:#cbd5e1;
-  font-size:13px;
-}
-
-.danger{background:#f87171}
-
-.status{
-  background:#25354b;
-  border-radius:9px;
-  padding:10px;
-}
-
-.tag{
-  display:inline-block;
-  padding:3px 7px;
-  border-radius:6px;
-  font-size:12px;
-  font-weight:bold;
-}
-
-.GK{
-  background:#facc15;
-  color:#111;
-}
-
-.DF{
-  background:#dc2626;
-  color:white;
-}
-
-.O{
-  background:#2563eb;
-  color:white;
-}
-
-.ST{
-  background:#171717;
-  color:white;
-}
-
-.rink{
-  position:relative;
-  width:100%;
-  max-width:580px;
-  aspect-ratio:340/470;
-  margin:12px auto;
-  background:#f5fbff;
-  border:5px solid #d63143;
-  border-radius:12%/9%;
-  overflow:hidden;
-}
-
-.rink svg{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-}
-
-.slot{
-  position:absolute;
-  transform:translate(-50%,-50%);
-  width:29%;
-  min-height:55px;
-  max-width:150px;
-  z-index:2;
-  border:2px solid white;
-  box-shadow:0 2px 5px #3338;
-  font-size:clamp(10px,2.5vw,14px);
-  padding:4px;
-  overflow-wrap:anywhere;
-}
-
-.slot b{display:block}
-
-.bench{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:7px;
-}
-
-.bench button{
-  width:100%;
-  margin:0;
-}
-
-.form{
-  display:flex;
-  flex-wrap:wrap;
-  gap:9px;
-}
-
-.form label{
-  display:flex;
-  flex-direction:column;
-  gap:4px;
-}
-
-.form input,.form select{
-  width:170px;
-  max-width:100%;
-}
-
-#notice{color:#86efac}
-
-dialog{
-  background:#1e293b;
-  color:white;
-  border:2px solid #64748b;
-  border-radius:14px;
-  width:min(92vw,440px);
-  max-height:80vh;
-  overflow:auto;
-}
-
-dialog::backdrop{
-  background:#0009;
-}
-
-.choice{
-  display:block;
-  width:100%;
-  text-align:left;
-  margin:7px 0;
-}
-
-.tiny{font-size:12px}
-
-@media(min-width:650px){
-  .bench{
-    grid-template-columns:repeat(4,1fr);
-  }
-}
-</style>
-</head>
-
-<body>
-
-<h1>🏒 LEGO Hockey Manager</h1>
-
-<p class="muted">
-  Private Liga · Aufstellungen · Spielleiter
-</p>
-
-<nav>
-  <button onclick="go('market')">
-    Transfermarkt
-  </button>
-
-  <button onclick="go('teams')">
-    Mannschaften
-  </button>
-
-  <button onclick="go('round')">
-    Spieltag
-  </button>
-
-  <button onclick="go('table')">
-    Tabelle
-  </button>
-
-  <button onclick="go('players')">
-    Spieler verwalten
-  </button>
-
-  <button onclick="go('admin')">
-    🛡️ Spielleiter
-  </button>
-
-  <button onclick="go('backup')">
-    Sicherung
-  </button>
-</nav>
-
-<p id="notice" role="status"></p>
-<main id="app"></main>
-<dialog id="picker"></dialog>
-
+*{box-sizing:border-box}body{font:16px system-ui;background:#101827;color:#f2f5fa;margin:0 auto;padding:14px;max-width:900px}h1{font-size:25px}button,input,select{font:inherit;padding:10px;border:1px solid #64748b;border-radius:9px}button{background:#38bdf8;color:#071523;font-weight:700;margin:3px;cursor:pointer}button:disabled{opacity:.35}nav{display:flex;flex-wrap:wrap}nav button{background:#24344c;color:#fff}.card{background:#1e293b;border-radius:12px;padding:13px;margin:10px 0}.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.muted{color:#cbd5e1;font-size:13px}.danger{background:#f87171}.status{background:#25354b;border-radius:9px;padding:10px}.tag{display:inline-block;padding:3px 7px;border-radius:6px;font-size:12px;font-weight:bold}.GK{background:#facc15;color:#111}.DF{background:#dc2626;color:white}.O{background:#2563eb;color:white}.ST{background:#171717;color:white}.rink{position:relative;width:100%;max-width:580px;aspect-ratio:340/470;margin:12px auto;background:#f5fbff;border:5px solid #d63143;border-radius:12%/9%;overflow:hidden}.rink svg{position:absolute;inset:0;width:100%;height:100%}.slot{position:absolute;transform:translate(-50%,-50%);width:29%;min-height:55px;max-width:150px;z-index:2;border:2px solid white;box-shadow:0 2px 5px #3338;font-size:clamp(10px,2.5vw,14px);padding:4px;overflow-wrap:anywhere}.slot b{display:block}.bench{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.bench button{width:100%;margin:0}.form{display:flex;flex-wrap:wrap;gap:9px}.form label{display:flex;flex-direction:column;gap:4px}.form input,.form select{width:170px;max-width:100%}#notice{color:#86efac}dialog{background:#1e293b;color:white;border:2px solid #64748b;border-radius:14px;width:min(92vw,440px);max-height:80vh;overflow:auto}dialog::backdrop{background:#0009}.choice{display:block;width:100%;text-align:left;margin:7px 0}.tiny{font-size:12px}@media(min-width:650px){.bench{grid-template-columns:repeat(4,1fr)}}
+</style></head><body>
+<h1>🏒 LEGO Hockey Manager</h1><p class="muted">Private Liga · Aufstellungen · Spielleiter</p>
+<nav><button onclick="go('market')">Transfermarkt</button><button onclick="go('teams')">Mannschaften</button><button onclick="go('offers')">Gebote & Angebote</button><button onclick="go('round')">Spieltag</button><button onclick="go('table')">Tabelle</button><button onclick="go('players')">Spieler verwalten</button><button onclick="go('admin')">🛡️ Spielleiter</button><button onclick="go('backup')">Sicherung</button></nav>
+<p id="notice" role="status"></p><main id="app"></main><dialog id="picker"></dialog>
 <script>
 'use strict';
-
-const KEY='legoHockeyV1';
-
-const POS=['GK','DF','O','ST'];
-const BENCH=['GK','DF','O','ST'];
-
-const FORM={
-  Ausgewogen:[
-    'GK','DF','DF','O','O','ST'
-  ],
-  Defensiv:[
-    'GK','DF','DF','DF','ST','ST'
-  ],
-  Zentrum:[
-    'GK','DF','DF','O','ST','ST'
-  ],
-  Abwehrbollwerk:[
-    'GK','DF','DF','DF','DF','ST'
-  ]
-};
-
-const names=[
-  'Mika Blitz',
-  'Leo Frost',
-  'Finn Stahl',
-  'Noah Sturm',
-  'Ben Eis',
-  'Timo Komet',
-  'Luca Nord',
-  'Paul Klinge',
-  'Elias Turbo',
-  'Max Polar',
-  'Oskar Wolf',
-  'Jan Rakete',
-  'Nico Eis',
-  'Tom Blitz',
-  'Felix Frost',
-  'Lars Komet',
-  'Emil Sturm',
-  'Jona Nord'
-];
-
-const $=id=>document.getElementById(id);
-
-const esc=s=>String(s??'').replace(
-  /[&<>"']/g,
-  c=>({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  }[c])
-);
-
-const euro=n=>
-  Number(n).toFixed(2)+' Mio.';
-
-function fresh(){
-  return {
-    round:1,
-
-    managers:[
-      'Jakob',
-      'Lorenz',
-      'Keks & Rex',
-      'Kalle',
-      'Manager 5'
-    ].map(name=>({
-      name,
-      cash:30,
-      points:0
-    })),
-
-    players:names.map((name,id)=>({
-      id,
-      name,
-      team:[
-        'Eisbären',
-        'Wölfe',
-        'Pinguine'
-      ][id%3],
-      position:POS[id%4],
-      value:3+id%5,
-      owner:-1,
-      points:0
-    })),
-
-    market:Array.from(
-      {length:15},
-      (_,i)=>i
-    ),
-
-    lineups:{},
-    locked:false,
-    adminIndex:0
-  };
-}
-
-let state;
-
-try{
-  state=JSON.parse(
-    localStorage.getItem(KEY)
-  )||fresh();
-}catch{
-  state=fresh();
-}
-
-let tab='market';
-let selected=0;
-let editing=null;
+const KEY='legoHockeyV1', POS=['GK','DF','O','ST'],BENCH=['GK','DF','O','ST'];
+const FORM={Ausgewogen:['GK','DF','DF','O','O','ST'],Defensiv:['GK','DF','DF','DF','ST','ST'],Zentrum:['GK','DF','DF','O','ST','ST'],Abwehrbollwerk:['GK','DF','DF','DF','DF','ST']};
+const names=['Mika Blitz','Leo Frost','Finn Stahl','Noah Sturm','Ben Eis','Timo Komet','Luca Nord','Paul Klinge','Elias Turbo','Max Polar','Oskar Wolf','Jan Rakete','Nico Eis','Tom Blitz','Felix Frost','Lars Komet','Emil Sturm','Jona Nord'];
+const $=id=>document.getElementById(id),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),euro=n=>Number(n).toFixed(2)+' Mio.';
+function fresh(){return {round:1,managers:['Jakob','Lorenz','Keks & Rex','Kalle','Manager 5'].map(name=>({name,cash:30,points:0})),players:names.map((name,id)=>({id,name,team:['Eisbären','Wölfe','Pinguine'][id%3],position:POS[id%4],value:3+id%5,owner:-1,points:0})),market:Array.from({length:15},(_,i)=>i),lineups:{},locked:false,adminIndex:0,listings:[],bids:[],bidCounter:1}}
+let state;try{state=JSON.parse(localStorage.getItem(KEY))||fresh()}catch{state=fresh()}
+let tab='market',selected=0,editing=null;
 function normalize(){
-  if(
-    !state||
-    !Array.isArray(state.players)||
-    !Array.isArray(state.managers)
-  ){
-    state=fresh();
-  }
-
-  state.market=Array.isArray(state.market)?
-    state.market:[];
-
-  state.lineups=state.lineups&&
-    typeof state.lineups==='object'?
-    state.lineups:{};
-
-  state.locked=!!state.locked;
-
-  // Fünf Manager mit ihren bisherigen Daten
-  const managerNames=[
-    'Jakob',
-    'Lorenz',
-    'Keks & Rex',
-    'Kalle',
-    'Manager 5'
-  ];
-
-  state.managers.forEach((m,i)=>{
-    if(
-      i<5&&(
-        /^Manager (Rot|Blau|Grün)$/i.test(m.name||'')||
-        /^Manager [1-5]$/i.test(m.name||'')
-      )
-    ){
-      m.name=managerNames[i];
-    }
-  });
-
-  while(state.managers.length<5){
-    const i=state.managers.length;
-
-    state.managers.push({
-      name:managerNames[i],
-      cash:30,
-      points:0
-    });
-  }
-
-  // Aktuellen Administrator beibehalten
-  if(
-    !Number.isInteger(state.adminIndex)||
-    state.adminIndex<0||
-    state.adminIndex>=state.managers.length
-  ){
-    state.adminIndex=0;
-  }
-
-  // Spielerdaten ergänzen
-  state.players.forEach(p=>{
-    p.id=Number(p.id);
-    p.owner=Number(p.owner??-1);
-    p.value=Number(p.value)||1;
-    p.points=Number(p.points)||0;
-
-    if(!POS.includes(p.position)){
-      p.position='DF';
-    }
-  });
-
-  // Aufstellungen für alle fünf Manager
-  state.managers.forEach((m,i)=>{
-    m.cash=Number(m.cash)||0;
-    m.points=Number(m.points)||0;
-
-    if(!state.lineups[i]){
-      state.lineups[i]={
-        formation:'Ausgewogen',
-        starters:[],
-        bench:[]
-      };
-    }
-
-    let l=state.lineups[i];
-
-    if(!FORM[l.formation]){
-      l.formation='Ausgewogen';
-    }
-
-    l.starters=Array.from(
-      {length:6},
-      (_,j)=>l.starters?.[j]??null
-    );
-
-    l.bench=Array.from(
-      {length:4},
-      (_,j)=>l.bench?.[j]??null
-    );
-  });
-
-  // Nur freie Spieler dürfen auf den Markt
-  state.market=state.market
-    .map(Number)
-    .filter(id=>state.players.some(
-      p=>p.id===id&&p.owner===-1
-    ));
-
-  // Bestehende Angebote behalten
-  // und auf 15 Spieler auffüllen
-  const extra=state.players.filter(
-    p=>p.owner===-1&&
-    !state.market.includes(p.id)
-  );
-
-  state.market.push(
-    ...shuffle(extra)
-      .slice(
-        0,
-        Math.max(0,15-state.market.length)
-      )
-      .map(p=>p.id)
-  );
+ if(!state||!Array.isArray(state.players)||!Array.isArray(state.managers))state=fresh();
+ state.listings=Array.isArray(state.listings)?state.listings:[];
+ state.bids=Array.isArray(state.bids)?state.bids:[];
+ state.bidCounter=Number(state.bidCounter)||1;
+ state.market=Array.isArray(state.market)?state.market:[];state.lineups=state.lineups&&typeof state.lineups==='object'?state.lineups:{};state.locked=!!state.locked;
+ // Bestehende Manager behalten Budget, Punkte und ihre Spieler.
+ // Nur die bisher verwendeten Platzhalternamen werden einmalig ersetzt.
+ const managerNames=['Jakob','Lorenz','Keks & Rex','Kalle','Manager 5'];
+ state.managers.forEach((m,i)=>{
+   if(i<5 && (/^Manager (Rot|Blau|Grün)$/i.test(m.name||'') || /^Manager [1-5]$/i.test(m.name||'')))m.name=managerNames[i];
+ });
+ while(state.managers.length<5){
+   const i=state.managers.length;
+   state.managers.push({name:managerNames[i],cash:30,points:0});
+ }
+ if(!Number.isInteger(state.adminIndex)||state.adminIndex<0||state.adminIndex>=state.managers.length)state.adminIndex=0;
+ state.players.forEach(p=>{p.id=Number(p.id);p.owner=Number(p.owner??-1);p.value=Number(p.value)||1;p.points=Number(p.points)||0;if(!POS.includes(p.position))p.position='DF'});
+ state.managers.forEach((m,i)=>{m.cash=Number(m.cash)||0;m.points=Number(m.points)||0;if(!state.lineups[i])state.lineups[i]={formation:'Ausgewogen',starters:[],bench:[]};let l=state.lineups[i];if(!FORM[l.formation])l.formation='Ausgewogen';l.starters=Array.from({length:6},(_,j)=>l.starters?.[j]??null);l.bench=Array.from({length:4},(_,j)=>l.bench?.[j]??null)});
+ state.market=state.market.map(Number).filter(id=>state.players.some(p=>p.id===id&&p.owner===-1));
+ state.listings=state.listings.filter(l=>{let p=state.players.find(p=>p.id===l.playerId);return p&&p.owner===l.seller});
+ state.bids=state.bids.filter(b=>state.listings.some(l=>l.playerId===b.playerId));
+ // Bestehende Marktangebote erhalten und freie Plätze auf 15 auffüllen.
+ const extra=state.players.filter(p=>p.owner===-1&&!state.market.includes(p.id));
+ state.market.push(...shuffle(extra).slice(0,Math.max(0,15-state.market.length)).map(p=>p.id));
 }
-
 normalize();
-
-// Aktualisierte Manager und Marktangebote speichern
-try{
-  localStorage.setItem(
-    KEY,
-    JSON.stringify(state)
-  );
-}catch(e){}
-
-
-// SPIELSTAND SPEICHERN
-
+try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}
 function save(){
   try{
-    localStorage.setItem(
-      KEY,
-      JSON.stringify(state)
-    );
+    localStorage.setItem(KEY,JSON.stringify(state));
   }catch{
-    alert(
-      'Speichern fehlgeschlagen. '+
-      'Bitte JSON-Sicherung herunterladen.'
-    );
+    alert('Speichern fehlgeschlagen. Bitte JSON-Sicherung herunterladen.');
   }
 }
-
 function notice(s){
   $('notice').textContent=s;
 }
-
 function go(t){
   tab=t;
   editing=null;
   render();
 }
-
 function player(id){
-  return state.players.find(
-    p=>p.id===Number(id)
-  );
+  return state.players.find(p=>p.id===Number(id));
 }
-
 function nextId(){
-  return Math.max(
-    -1,
-    ...state.players.map(p=>p.id)
-  )+1;
+  return Math.max(-1,...state.players.map(p=>p.id))+1;
 }
-
-
-// ADMINISTRATOR
-
 function isAdmin(){
   return selected===state.adminIndex;
 }
-
 function guard(){
   if(isAdmin())return true;
-
-  alert(
-    'Nur der aktuelle Admin darf das. '+
-    'Wähle '+
-    state.managers[state.adminIndex].name+
-    ' im Manager-Menü.'
-  );
-
+  alert('Nur der aktuelle Admin darf das. Wähle '+state.managers[state.adminIndex].name+' im Manager-Menü.');
   return false;
 }
-
-
-// SPIELERPOSITION ANZEIGEN
-
 function badge(p){
-  return `<span class="tag ${p.position}">
-    ${p.position}
-  </span>`;
+  return `<span class="tag ${p.position}">${p.position}</span>`;
 }
-
-
-// MANAGERAUSWAHL
-
 function managerSelect(){
-  return `<label>Manager:
-    <select onchange="
-      selected=Number(this.value);
-      render()
-    ">
-      ${state.managers.map((m,i)=>`
-        <option value="${i}"
-          ${selected===i?'selected':''}>
-          ${esc(m.name)}
-          ${i===state.adminIndex?' 🛡️':''}
-        </option>
-      `).join('')}
-    </select>
-  </label>`;
+  return `<label>Manager: <select onchange="selected=Number(this.value);render()">${state.managers.map((m,i)=>`<option value="${i}" ${selected===i?'selected':''}>${esc(m.name)}${i===state.adminIndex?' 🛡️':''}</option>`).join('')}</select></label>`;
 }
-
-
-// SPIELERKARTE
-
 function card(p,action=''){
-  return `<div class="card row">
-    <div>
-      <b>${esc(p.name)}</b>
-      ${badge(p)}
-
-      <div class="muted">
-        ${esc(p.team)} ·
-        ${euro(p.value)} ·
-        ${p.points} Punkte
-      </div>
-    </div>
-
-    ${action}
-  </div>`;
+  return `<div class="card row"><div><b>${esc(p.name)}</b> ${badge(p)}<div class="muted">${esc(p.team)} · ${euro(p.value)} · ${p.points} Punkte</div></div>${action}</div>`;
 }
 
-
-// SPIELER KAUFEN
-
+function money(n){return Math.round(n*100)/100}
+function minimum(p){return money(p.value*.9)}
+function listing(id){return state.listings.find(l=>l.playerId===id)}
+function fillMarket(){state.market=state.market.filter(id=>{let p=player(id);return p&&p.owner===-1});let a=shuffle(state.players.filter(p=>p.owner===-1&&!state.market.includes(p.id)));state.market.push(...a.slice(0,Math.max(0,15-state.market.length)).map(p=>p.id));state.market=state.market.slice(0,15)}
 function buy(id){
-  let p=player(id);
-  let m=state.managers[selected];
-
-  if(
-    !p||
-    p.owner!==-1||
-    !state.market.includes(id)||
-    m.cash<p.value
-  ){
-    return;
-  }
-
-  m.cash=+(
-    m.cash-p.value
-  ).toFixed(2);
-
-  p.owner=selected;
-
-  state.market=state.market.filter(
-    x=>x!==id
-  );
-
-  save();
-  render();
-  notice('Gekauft');
+ let p=player(id),m=state.managers[selected];if(!p||p.owner!==-1||!state.market.includes(id))return;
+ let raw=prompt('Gebot für '+p.name+' in Mio. (mindestens '+euro(minimum(p))+')',String(p.value));if(raw===null)return;
+ let n=Number(raw.replace(',','.'));if(!Number.isFinite(n)||n<minimum(p))return alert('Mindestgebot: '+euro(minimum(p)));
+ if(n>m.cash)return alert('Budget reicht nicht.');
+ if(n<p.value*(.96+Math.random()*.16))return notice('Computer hat dein Gebot abgelehnt.');
+ m.cash=money(m.cash-n);p.owner=selected;state.market=state.market.filter(x=>x!==id);fillMarket();save();render();notice('Computer hat dein Gebot angenommen!');
 }
-
-
-// SPIELER AUS AUFSTELLUNGEN ENTFERNEN
-
+function offerPlayer(id){
+ if(state.locked)return alert('Aufstellungen gesperrt.');let p=player(id);if(!p||p.owner!==selected)return;
+ if(listing(id)){state.listings=state.listings.filter(l=>l.playerId!==id);state.bids=state.bids.filter(b=>b.playerId!==id);save();render();return}
+ let raw=prompt('Mindestpreis für '+p.name+' in Mio.',String(p.value));if(raw===null)return;
+ let n=Number(raw.replace(',','.'));if(!Number.isFinite(n)||n<=0)return alert('Ungültiger Preis.');
+ state.listings.push({playerId:id,seller:selected,min:money(n)});
+ if(Math.random()<.65)state.bids.push({id:state.bidCounter++,playerId:id,buyer:-1,amount:money(Math.max(n,p.value*(.88+Math.random()*.28)))});
+ save();render();notice('Spieler zum Verkauf angeboten.');
+}
+function bidOnListing(id){
+ let l=listing(id),p=player(id);if(!l||!p||p.owner!==l.seller||selected===l.seller)return;
+ let raw=prompt('Gebot für '+p.name+' (mindestens '+euro(l.min)+')',String(l.min));if(raw===null)return;
+ let n=Number(raw.replace(',','.'));if(!Number.isFinite(n)||n<l.min)return alert('Mindestpreis nicht erreicht.');
+ if(n>state.managers[selected].cash)return alert('Budget reicht nicht.');
+ state.bids=state.bids.filter(b=>!(b.playerId===id&&b.buyer===selected));
+ state.bids.push({id:state.bidCounter++,playerId:id,buyer:selected,amount:money(n)});
+ save();render();notice('Gebot abgegeben. Der Verkäufer entscheidet.');
+}
+function decideBid(id,accept){
+ let b=state.bids.find(b=>b.id===id);if(!b)return;
+ let l=listing(b.playerId),p=player(b.playerId);if(!l||!p||l.seller!==selected||p.owner!==selected)return;
+ if(accept){
+  if(state.locked)return alert('Aufstellungen gesperrt.');
+  if(b.buyer>=0&&state.managers[b.buyer].cash<b.amount)return alert('Käufer hat nicht genug Budget.');
+  removeLineups(p.id);state.managers[selected].cash=money(state.managers[selected].cash+b.amount);
+  if(b.buyer>=0)state.managers[b.buyer].cash=money(state.managers[b.buyer].cash-b.amount);
+  p.owner=b.buyer;state.listings=state.listings.filter(l=>l.playerId!==p.id);state.bids=state.bids.filter(b=>b.playerId!==p.id);
+  if(b.buyer===-1)fillMarket();
+  notice('Gebot angenommen.');
+ }else{state.bids=state.bids.filter(x=>x.id!==id);notice('Gebot abgelehnt.')}
+ save();render();
+}
 function removeLineups(id){
   Object.values(state.lineups).forEach(l=>{
-    l.starters=l.starters.map(
-      x=>x===id?null:x
-    );
-
-    l.bench=l.bench.map(
-      x=>x===id?null:x
-    );
+    l.starters=l.starters.map(x=>x===id?null:x);
+    l.bench=l.bench.map(x=>x===id?null:x);
   });
 }
 
-
-// SPIELER VERKAUFEN
-
 function sell(id){
-  if(state.locked){
-    return alert(
-      'Aufstellungen sind gesperrt.'
-    );
-  }
-
-  let p=player(id);
-
-  if(!p||p.owner!==selected)return;
-
-  removeLineups(id);
-
-  state.managers[selected].cash=+(
-    state.managers[selected].cash+p.value
-  ).toFixed(2);
-
-  p.owner=-1;
-
-  save();
-  render();
+  offerPlayer(id);
 }
-
-
-// SPIELER ZUFÄLLIG MISCHEN
 
 function shuffle(a){
   for(let i=a.length-1;i>0;i--){
-    let j=Math.floor(
-      Math.random()*(i+1)
-    );
-
+    let j=Math.floor(Math.random()*(i+1));
     [a[i],a[j]]=[a[j],a[i]];
   }
-
   return a;
 }
 
-
-// TRANSFERMARKT MANUELL ERNEUERN
-// NUR DURCH DEN AKTUELLEN ADMIN
-
 function refreshMarket(){
   if(!guard())return;
-
-  if(!confirm(
-    'Transfermarkt jetzt erneuern? '+
-    'Nicht gekaufte Angebote werden ersetzt.'
-  )){
-    return;
-  }
-
-  let free=shuffle(
-    state.players.filter(
-      p=>p.owner===-1
-    )
-  );
-
-  state.market=free
-    .slice(
-      0,
-      Math.min(15,free.length)
-    )
-    .map(p=>p.id);
-
+  if(!confirm('Transfermarkt jetzt erneuern? Nicht gekaufte Angebote werden ersetzt.'))return;
+  let free=shuffle(state.players.filter(p=>p.owner===-1));
+  state.market=free.slice(0,Math.min(15,free.length)).map(p=>p.id);
   save();
   render();
-
   notice('Transfermarkt erneuert.');
 }
 
-
-// FORMATION WECHSELN
-
 function formationChange(v){
   if(state.locked)return;
-
-  let l=state.lineups[selected];
-  let next=FORM[v];
-
+  let l=state.lineups[selected],next=FORM[v];
   if(!next)return;
 
-  let pool=l.starters
-    .map(player)
-    .filter(p=>p&&p.owner===selected);
-
+  let pool=l.starters.map(player).filter(p=>p&&p.owner===selected);
   let assigned=Array(6).fill(null);
 
   next.forEach((pos,i)=>{
-    let p=pool.find(
-      p=>p.position===pos&&
-      !assigned.includes(p.id)
-    );
-
-    if(p){
-      assigned[i]=p.id;
-    }
+    let p=pool.find(p=>p.position===pos&&!assigned.includes(p.id));
+    if(p)assigned[i]=p.id;
   });
 
   l.formation=v;
   l.starters=assigned;
-
   save();
   render();
 }
-
-
-// SPIELER AUF DEM EISHOCKEYFELD AUSWÄHLEN
 
 function choose(kind,index){
   if(state.locked)return;
 
   let l=state.lineups[selected];
+  let pos=kind==='starter'?FORM[l.formation][index]:BENCH[index];
+  let current=kind==='starter'?l.starters[index]:l.bench[index];
 
-  let pos=kind==='starter'?
-    FORM[l.formation][index]:
-    BENCH[index];
-
-  let current=kind==='starter'?
-    l.starters[index]:
-    l.bench[index];
-
-  let used=[
-    ...l.starters,
-    ...l.bench
-  ].filter(id=>
-    id!==null&&id!==current
-  );
+  let used=[...l.starters,...l.bench].filter(id=>id!==null&&id!==current);
 
   let options=state.players.filter(
-    p=>p.owner===selected&&
-    p.position===pos&&
-    !used.includes(p.id)
+    p=>p.owner===selected&&p.position===pos&&!used.includes(p.id)
   );
 
   let d=$('picker');
 
   d.innerHTML=`
     <h3>${pos} besetzen</h3>
-
-    <button class="choice" data-id="">
-      ➖ Platz freilassen
-    </button>
-
+    <button class="choice" data-id="">➖ Platz freilassen</button>
     ${options.map(p=>`
-      <button
-        class="choice"
-        data-id="${p.id}"
-      >
+      <button class="choice" data-id="${p.id}">
         ${esc(p.name)} · ${euro(p.value)}
       </button>
-    `).join('')||
-    '<p>Keine passenden Spieler im Kader.</p>'}
-
-    <button onclick="
-      document.getElementById('picker').close()
-    ">
+    `).join('')||'<p>Keine passenden Spieler im Kader.</p>'}
+    <button onclick="document.getElementById('picker').close()">
       Abbrechen
     </button>
   `;
 
-  d.querySelectorAll('[data-id]')
-    .forEach(b=>b.onclick=()=>{
-      let id=b.dataset.id===''?
-        null:Number(b.dataset.id);
+  d.querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{
+    let id=b.dataset.id===''?null:Number(b.dataset.id);
 
-      if(kind==='starter'){
-        l.starters[index]=id;
-      }else{
-        l.bench[index]=id;
-      }
+    if(kind==='starter'){
+      l.starters[index]=id;
+    }else{
+      l.bench[index]=id;
+    }
 
-      d.close();
-      save();
-      render();
-    });
+    d.close();
+    save();
+    render();
+  });
 
   d.showModal();
 }
+
 function rink(){
   let l=state.lineups[selected];
   let pos=FORM[l.formation];
 
-  let front=pos
-    .map((p,i)=>({p,i}))
+  let front=pos.map((p,i)=>({p,i}))
     .filter(x=>x.p==='O'||x.p==='ST');
 
-  let back=pos
-    .map((p,i)=>({p,i}))
+  let back=pos.map((p,i)=>({p,i}))
     .filter(x=>x.p==='DF');
 
   let xy={};
@@ -843,35 +235,28 @@ function rink(){
   front.forEach((x,k)=>{
     xy[x.i]={
       x:100*(k+1)/(front.length+1),
-      y:front.length===1?
-        25:22+(k%2)*10
+      y:front.length===1?25:22+(k%2)*10
     };
   });
 
   back.forEach((x,k)=>{
     xy[x.i]={
       x:100*(k+1)/(back.length+1),
-      y:back.length===4?
-        65+(k%2)*8:67
+      y:back.length===4?65+(k%2)*8:67
     };
   });
 
-  xy[pos.indexOf('GK')]={
-    x:50,
-    y:89
-  };
+  xy[pos.indexOf('GK')]={x:50,y:89};
 
   let slots=pos.map((p,i)=>{
     let s=player(l.starters[i]);
     let a=xy[i];
 
     return `
-      <button
-        class="slot ${p}"
+      <button class="slot ${p}"
         style="left:${a.x}%;top:${a.y}%"
         onclick="choose('starter',${i})"
-        ${state.locked?'disabled':''}
-      >
+        ${state.locked?'disabled':''}>
         <b>${p}</b>
         ${s?esc(s.name):'+ Spieler'}
       </button>
@@ -880,109 +265,53 @@ function rink(){
 
   return `
     <div class="card">
-      <h3>
-        Aufstellung · Spieltag ${state.round}
-      </h3>
+      <h3>Aufstellung · Spieltag ${state.round}</h3>
 
       <label>
         Formation
-        <select
-          onchange="formationChange(this.value)"
-          ${state.locked?'disabled':''}
-        >
+        <select onchange="formationChange(this.value)"
+          ${state.locked?'disabled':''}>
           ${Object.keys(FORM).map(n=>`
-            <option
-              ${n===l.formation?'selected':''}
-            >
-              ${n}
-            </option>
+            <option ${n===l.formation?'selected':''}>${n}</option>
           `).join('')}
         </select>
       </label>
 
       <p class="status">
-        ${state.locked?
-          '🔒 Aufstellung gesperrt':
-          '🔓 Tippe auf eine Position und wähle einen Spieler.'
-        }
+        ${state.locked
+          ?'🔒 Aufstellung gesperrt'
+          :'🔓 Tippe auf eine Position und wähle einen Spieler.'}
       </p>
 
       <div class="rink">
-        <svg
-          viewBox="0 0 340 470"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <path
-            d="M0 150H340 M0 320H340"
-            stroke="#2b78bd"
-            stroke-width="3"
-          />
+        <svg viewBox="0 0 340 470"
+          preserveAspectRatio="none" aria-hidden="true">
 
-          <path
-            d="M0 235H340"
-            stroke="#c93443"
-            stroke-width="3"
-          />
+          <path d="M0 150H340 M0 320H340"
+            stroke="#2b78bd" stroke-width="3"/>
 
-          <circle
-            cx="170"
-            cy="235"
-            r="51"
-            stroke="#2b78bd"
-            stroke-width="3"
-            fill="none"
-          />
+          <path d="M0 235H340"
+            stroke="#c93443" stroke-width="3"/>
 
-          <circle
-            cx="170"
-            cy="235"
-            r="4"
-            fill="#2b78bd"
-          />
+          <circle cx="170" cy="235" r="51"
+            stroke="#2b78bd" stroke-width="3" fill="none"/>
 
-          <circle
-            cx="83"
-            cy="88"
-            r="29"
-            stroke="#c93443"
-            stroke-width="2"
-            fill="none"
-          />
+          <circle cx="170" cy="235" r="4" fill="#2b78bd"/>
 
-          <circle
-            cx="257"
-            cy="88"
-            r="29"
-            stroke="#c93443"
-            stroke-width="2"
-            fill="none"
-          />
+          <circle cx="83" cy="88" r="29"
+            stroke="#c93443" stroke-width="2" fill="none"/>
 
-          <circle
-            cx="83"
-            cy="382"
-            r="29"
-            stroke="#c93443"
-            stroke-width="2"
-            fill="none"
-          />
+          <circle cx="257" cy="88" r="29"
+            stroke="#c93443" stroke-width="2" fill="none"/>
 
-          <circle
-            cx="257"
-            cy="382"
-            r="29"
-            stroke="#c93443"
-            stroke-width="2"
-            fill="none"
-          />
+          <circle cx="83" cy="382" r="29"
+            stroke="#c93443" stroke-width="2" fill="none"/>
 
-          <path
-            d="M139 468v-22q31-27 62 0v22"
-            fill="#acd4f2"
-            stroke="#c93443"
-            stroke-width="3"
-          />
+          <circle cx="257" cy="382" r="29"
+            stroke="#c93443" stroke-width="2" fill="none"/>
+
+          <path d="M139 468v-22q31-27 62 0v22"
+            fill="#acd4f2" stroke="#c93443" stroke-width="3"/>
         </svg>
 
         ${slots}
@@ -995,13 +324,10 @@ function rink(){
           let s=player(l.bench[i]);
 
           return `
-            <button
-              class="${p}"
+            <button class="${p}"
               onclick="choose('bench',${i})"
-              ${state.locked?'disabled':''}
-            >
-              ${p} ·
-              ${s?esc(s.name):'+ Ersatz'}
+              ${state.locked?'disabled':''}>
+              ${p} · ${s?esc(s.name):'+ Ersatz'}
             </button>
           `;
         }).join('')}
@@ -1016,17 +342,9 @@ function rink(){
   `;
 }
 
-
-// PUNKTEBERECHNUNG
-
 function totals(){
   return state.managers.map((m,i)=>{
-
-    // Negativer Kontostand:
-    // 0 Punkte für den gesamten Spieltag.
-    if(m.cash<0){
-      return 0;
-    }
+    if(m.cash<0)return 0;
 
     let l=state.lineups[i];
     let used=new Set();
@@ -1035,32 +353,19 @@ function totals(){
     FORM[l.formation].forEach((pos,j)=>{
       let p=player(l.starters[j]);
 
-      // Nicht besetzte Startposition:
-      // minus 4 Punkte.
-      if(
-        !p||
-        p.owner!==i||
-        p.position!==pos
-      ){
+      if(!p||p.owner!==i||p.position!==pos){
         score-=4;
         return;
       }
 
       let pts=Number(p.points)||0;
 
-      // Ersatzspieler bei 0 Punkten
       if(pts===0){
         let k=BENCH.indexOf(pos);
         let b=player(l.bench[k]);
 
-        if(
-          k>=0&&
-          !used.has(k)&&
-          b&&
-          b.owner===i&&
-          b.position===pos&&
-          b.points>0
-        ){
+        if(k>=0&&!used.has(k)&&b&&
+          b.owner===i&&b.position===pos&&b.points>0){
           pts=b.points;
           used.add(k);
         }
@@ -1073,105 +378,60 @@ function totals(){
   });
 }
 
-
-// AUFSTELLUNGEN SPERREN
-// NUR DER AKTUELLE ADMIN
-
 function lock(){
-  if(!guard()||state.locked){
-    return;
-  }
+  if(!guard()||state.locked)return;
 
-  if(!confirm(
-    'Alle Aufstellungen sperren?'
-  )){
-    return;
-  }
+  if(!confirm('Alle Aufstellungen sperren?'))return;
 
   state.locked=true;
-
   save();
   render();
 }
 
-
-// SPIELTAG ABSCHLIESSEN
-// NUR DER AKTUELLE ADMIN
-
 function finish(){
-  if(!guard()){
-    return;
-  }
+  if(!guard())return;
 
   if(!state.locked){
-    return alert(
-      'Bitte erst Aufstellungen sperren.'
-    );
+    return alert('Bitte erst Aufstellungen sperren.');
   }
 
-  if(!confirm(
-    'Spieltag abschließen und Punkte abrechnen?'
-  )){
-    return;
-  }
+  if(!confirm('Spieltag abschließen und Punkte abrechnen?'))return;
 
   let t=totals();
 
-  // Spieltagspunkte zu Gesamtpunkten addieren
   t.forEach((n,i)=>{
     state.managers[i].points+=n;
   });
 
-  // Marktwerte verändern
-  // und Spielerpunkte zurücksetzen
   state.players.forEach(p=>{
-    let change=
-      (p.points-5)*.045+
-      (Math.random()-.5)*.12;
+    let change=(p.points-5)*.045+(Math.random()-.5)*.12;
 
     p.value=Math.max(
       .5,
-      Math.round(
-        p.value*(1+change)*100
-      )/100
+      Math.round(p.value*(1+change)*100)/100
     );
 
     p.points=0;
   });
 
-  // Nächster Spieltag
   state.round++;
   state.locked=false;
 
-  // Transfermarkt automatisch erneuern:
-  // bis zu 15 freie Spieler
   state.market=shuffle(
-    state.players.filter(
-      p=>p.owner===-1
-    )
-  )
-  .slice(0,15)
-  .map(p=>p.id);
+    state.players.filter(p=>p.owner===-1)
+  ).slice(0,15).map(p=>p.id);
 
   save();
   render();
 
   notice(
     'Abgerechnet: '+
-    t.map((n,i)=>
-      state.managers[i].name+' '+n
-    ).join(' · ')
+    t.map((n,i)=>state.managers[i].name+' '+n).join(' · ')
   );
 }
 
-
-// SPIELERPUNKTE EINTRAGEN
-// NUR DER AKTUELLE ADMIN
-
 function setPoints(id,v){
-  if(!guard()){
-    return;
-  }
+  if(!guard())return;
 
   let p=player(id);
 
@@ -1181,51 +441,29 @@ function setPoints(id,v){
   }
 }
 
-
-// SPIELER BEARBEITEN
-
 function editPlayer(id){
-  if(!guard()){
-    return;
-  }
+  if(!guard())return;
 
   editing=id;
   render();
-
   window.scrollTo(0,0);
 }
 
-
-// SPIELER SPEICHERN
-
 function savePlayer(){
-  if(!guard()){
-    return;
-  }
+  if(!guard())return;
 
   let name=$('editName').value.trim();
   let position=$('editPos').value;
+  let value=Number($('editValue').value.replace(',','.'));
 
-  let value=Number(
-    $('editValue').value.replace(',','.')
-  );
-
-  if(
-    !name||
-    !POS.includes(position)||
-    !Number.isFinite(value)||
-    value<=0
-  ){
-    return alert(
-      'Name, Position und positiven Wert eingeben.'
-    );
+  if(!name||!POS.includes(position)||
+    !Number.isFinite(value)||value<=0){
+    return alert('Name, Position und positiven Wert eingeben.');
   }
 
   value=Math.round(value*100)/100;
 
   if(editing===null){
-
-    // Neuen Spieler erstellen
     state.players.push({
       id:nextId(),
       name,
@@ -1235,736 +473,467 @@ function savePlayer(){
       owner:-1,
       points:0
     });
-
   }else{
-
-    // Vorhandenen Spieler ändern
     let p=player(editing);
+    if(!p)return;
 
-    if(!p){
-      return;
-    }
-
-    if(
-      state.locked&&
-      p.position!==position
-    ){
-      return alert(
-        'Position während Sperre nicht änderbar.'
-      );
+    if(state.locked&&p.position!==position){
+      return alert('Position während Sperre nicht änderbar.');
     }
 
     if(p.position!==position){
       removeLineups(p.id);
     }
 
-    Object.assign(p,{
-      name,
-      position,
-      value
-    });
+    Object.assign(p,{name,position,value});
   }
 
   editing=null;
-
   save();
   render();
-
   notice('Spieler gespeichert.');
 }
 
-
-// SPIELER LÖSCHEN
-
 function deletePlayer(id){
-  if(!guard()||state.locked){
-    return;
-  }
+  if(!guard()||state.locked)return;
 
   let p=player(id);
 
-  if(
-    !p||
-    !confirm(
-      'Spieler „'+p.name+
-      '“ endgültig löschen?'
-    )
-  ){
-    return;
-  }
+  if(!p||!confirm('Spieler „'+p.name+'“ endgültig löschen?'))return;
 
   removeLineups(id);
 
-  state.players=state.players.filter(
-    p=>p.id!==id
-  );
-
-  state.market=state.market.filter(
-    x=>x!==id
-  );
+  state.listings=state.listings.filter(l=>l.playerId!==id);
+  state.bids=state.bids.filter(b=>b.playerId!==id);
+  state.players=state.players.filter(p=>p.id!==id);
+  state.market=state.market.filter(x=>x!==id);
 
   editing=null;
-
   save();
   render();
 }
 
-
-// MANAGER UMBENENNEN
-// NUR DER AKTUELLE ADMIN
-
-function rename(i){
-  if(!guard()){
-    return;
-  }
-
-  let name=prompt(
-    'Neuer Name für '+
-    state.managers[i].name,
-    state.managers[i].name
-  );
-
-  if(name===null){
-    return;
-  }
-
-  name=name.trim();
-
-  if(!name){
-    return alert(
-      'Name darf nicht leer sein.'
-    );
-  }
-
-  state.managers[i].name=name;
-
-  save();
-  render();
-}
-
-
-// ADMINISTRATOR WECHSELN
-
-function changeAdmin(i){
-  if(!guard()){
-    return;
-  }
-
-  if(i===state.adminIndex){
-    return;
-  }
-
-  const neuerAdmin=state.managers[i].name;
+function makeAdmin(i){
+  if(!guard())return;
+  if(i===state.adminIndex)return;
 
   if(!confirm(
-    neuerAdmin+
-    ' zum neuen Administrator machen?'
-  )){
-    return;
-  }
+    'Admin-Rechte an '+state.managers[i].name+' übertragen?'
+  ))return;
 
   state.adminIndex=i;
   selected=i;
 
   save();
   render();
+  notice('Neuer Admin: '+state.managers[i].name);
+}
 
-  notice(
-    neuerAdmin+
-    ' ist jetzt Administrator.'
+function rename(i){
+  if(!guard())return;
+
+  let name=prompt(
+    'Neuer Name für '+state.managers[i].name,
+    state.managers[i].name
   );
+
+  if(name===null)return;
+
+  name=name.trim();
+
+  if(!name){
+    return alert('Name darf nicht leer sein.');
+  }
+
+  state.managers[i].name=name;
+  save();
+  render();
 }
 function render(){
-  if(
-    selected<0||
-    selected>=state.managers.length
-  ){
-    selected=0;
-  }
-
-  let html='';
-
-  // TRANSFERMARKT
+  let out='';
 
   if(tab==='market'){
-    let m=state.managers[selected];
+    out='<h2>Transfermarkt</h2>'+
+      managerSelect()+
+      `<p>Budget: <b>${euro(state.managers[selected].cash)}</b></p>`+
+      state.market.map(id=>{
+        let p=player(id);
+        return p?card(
+          p,
+          `<button onclick="buy(${id})"
+            ${state.managers[selected].cash<p.value?'disabled':''}>
+            Gebot abgeben
+          </button>`
+        ):'';
+      }).join('')+
+      (isAdmin()?
+        '<button onclick="refreshMarket()">🔄 Transfermarkt erneuern (Admin)</button>':''
+      );
 
-    let offers=state.market
-      .map(player)
-      .filter(p=>p&&p.owner===-1);
-
-    html=`
-      <h2>Transfermarkt</h2>
-
-      ${managerSelect()}
-
-      <p class="status">
-        Kontostand:
-        <b>${euro(m.cash)}</b>
-      </p>
-
-      <p class="muted">
-        ${offers.length} von 15 möglichen
-        Transfermarktspielern verfügbar.
-      </p>
-
-      ${offers.map(p=>card(
-        p,
-        `<button
-          onclick="buy(${p.id})"
-          ${m.cash<p.value?'disabled':''}
-        >
-          Kaufen
-        </button>`
-      )).join('')}
-
-      ${offers.length===0?
-        '<p>Keine freien Spieler verfügbar.</p>':
-        ''
-      }
-
-      <p class="muted">
-        Der Spielleiter kann den Transfermarkt
-        erneuern. Nach jedem abgeschlossenen
-        Spieltag werden die Angebote
-        automatisch neu zusammengestellt.
-      </p>
-    `;
+    if(!state.market.length){
+      out+='<p>Keine Angebote. Admin kann den Markt erneuern.</p>';
+    }
   }
-
-
-  // MANNSCHAFTEN
 
   if(tab==='teams'){
-    let m=state.managers[selected];
+    out='<h2>Mannschaften</h2>'+
+      managerSelect()+
+      `<p>Budget: ${euro(state.managers[selected].cash)}</p>`+
+      rink()+
+      '<h3>Mein Kader</h3>'+
+      state.players.filter(p=>p.owner===selected)
+        .map(p=>card(
+          p,
+          `<button onclick="sell(${p.id})"
+            ${state.locked?'disabled':''}>
+            ${listing(p.id)?"Angebot entfernen":"Zum Verkauf anbieten"}
+          </button>`
+        )).join('');
 
-    let owned=state.players.filter(
-      p=>p.owner===selected
-    );
-
-    html=`
-      <h2>Mannschaften</h2>
-
-      ${managerSelect()}
-
-      <p class="status">
-        <b>${esc(m.name)}</b><br>
-        Kontostand: ${euro(m.cash)}<br>
-        Kader: ${owned.length} Spieler
-      </p>
-
-      ${rink()}
-
-      <h3>Mein Kader</h3>
-
-      ${owned.map(p=>card(
-        p,
-        `<button
-          onclick="sell(${p.id})"
-          ${state.locked?'disabled':''}
-        >
-          Verkaufen
-        </button>`
-      )).join('')}
-
-      ${owned.length===0?
-        '<p>Du hast noch keine Spieler gekauft.</p>':
-        ''
-      }
-    `;
+    if(!state.players.some(p=>p.owner===selected)){
+      out+='<p>Keine Spieler im Kader. Kaufe Spieler auf dem Transfermarkt.</p>';
+    }
   }
 
+  if(tab==='offers'){
+    out='<h2>Gebote & Angebote</h2>'+
+      managerSelect()+
+      '<p class="muted">Manager bieten Spieler an. Andere Manager und der Computer geben Gebote ab. Der Verkäufer entscheidet.</p>';
 
-  // SPIELTAG
+    out+='<h3>Meine Angebote</h3>';
 
-  if(tab==='round'){
-    let t=totals();
+    out+=state.listings.filter(l=>l.seller===selected)
+      .map(l=>{
+        let p=player(l.playerId);
+        if(!p)return '';
 
-    html=`
-      <h2>Spieltag ${state.round}</h2>
+        let bids=state.bids.filter(b=>b.playerId===p.id);
 
-      ${managerSelect()}
+        return `
+          <div class="card">
+            <b>${esc(p.name)}</b>
+            · Mindestpreis ${euro(l.min)}
 
-      <p class="status">
-        ${state.locked?
-          '🔒 Aufstellungen gesperrt':
-          '🔓 Aufstellungen noch offen'
-        }
-      </p>
-
-      <h3>Aktuelle Spieltagspunkte</h3>
-
-      ${state.managers.map((m,i)=>`
-        <div class="card row">
-          <b>${esc(m.name)}</b>
-          <b>${t[i]} Punkte</b>
-        </div>
-      `).join('')}
-
-      ${isAdmin()?`
-        <div class="card">
-          <h3>Spielleiter-Aktionen</h3>
-
-          <button
-            onclick="lock()"
-            ${state.locked?'disabled':''}
-          >
-            🔒 Aufstellungen sperren
-          </button>
-
-          <button
-            onclick="finish()"
-            ${!state.locked?'disabled':''}
-          >
-            Spieltag abschließen
-          </button>
-        </div>
-
-        <h3>Spielerpunkte eintragen</h3>
-
-        ${state.players.map(p=>`
-          <div class="card row">
-            <div>
-              <b>${esc(p.name)}</b>
-              ${badge(p)}
-            </div>
-
-            <input
-              type="number"
-              value="${p.points}"
-              style="width:90px"
-              onchange="
-                setPoints(
-                  ${p.id},
-                  this.value
-                )
-              "
-            >
-          </div>
-        `).join('')}
-      `:''}
-    `;
-  }
-
-
-  // TABELLE
-
-  if(tab==='table'){
-    let ranking=state.managers
-      .map((m,i)=>({...m,index:i}))
-      .sort((a,b)=>b.points-a.points);
-
-    html=`
-      <h2>Tabelle</h2>
-
-      <p class="muted">
-        Gesamtwertung nach
-        ${state.round-1}
-        abgeschlossenen Spieltagen.
-      </p>
-
-      ${ranking.map((m,i)=>`
-        <div class="card row">
-          <div>
-            <b>
-              ${i+1}. ${esc(m.name)}
-            </b>
-
-            ${m.index===state.adminIndex?
-              ' 🛡️':''}
-          </div>
-
-          <b>${m.points} Punkte</b>
-        </div>
-      `).join('')}
-    `;
-  }
-
-
-  // SPIELER VERWALTEN
-
-  if(tab==='players'){
-    html=`
-      <h2>Spieler verwalten</h2>
-
-      ${managerSelect()}
-
-      ${isAdmin()?`
-        <div class="card">
-          <h3>
-            ${editing===null?
-              'Neuen Spieler hinzufügen':
-              'Spieler bearbeiten'
-            }
-          </h3>
-
-          ${(()=>{
-            let p=editing===null?
-              null:player(editing);
-
-            return `
-              <div class="form">
-                <label>
-                  Name
-                  <input
-                    id="editName"
-                    value="${esc(p?.name||'')}"
-                  >
-                </label>
-
-                <label>
-                  Position
-                  <select id="editPos">
-                    ${POS.map(pos=>`
-                      <option
-                        value="${pos}"
-                        ${p?.position===pos?
-                          'selected':''}
-                      >
-                        ${pos}
-                      </option>
-                    `).join('')}
-                  </select>
-                </label>
-
-                <label>
-                  Marktwert in Mio.
-                  <input
-                    id="editValue"
-                    type="text"
-                    value="${p?.value??3}"
-                  >
-                </label>
-              </div>
-            `;
-          })()}
-
-          <button onclick="savePlayer()">
-            Speichern
-          </button>
-
-          ${editing!==null?`
-            <button onclick="
-              editing=null;
-              render()
-            ">
-              Abbrechen
+            <button onclick="offerPlayer(${p.id})"
+              ${state.locked?'disabled':''}>
+              Angebot entfernen
             </button>
-          `:''}
-        </div>
 
-        <h3>Alle Spieler</h3>
+            ${bids.length?
+              bids.map(b=>`
+                <div class="row">
+                  <span>
+                    ${b.buyer===-1?
+                      '🤖 Computer':
+                      esc(state.managers[b.buyer]?.name||'Manager')}
+                    bietet ${euro(b.amount)}
+                  </span>
 
-        ${state.players.map(p=>card(
+                  <span>
+                    <button onclick="decideBid(${b.id},true)"
+                      ${state.locked?'disabled':''}>
+                      Annehmen
+                    </button>
+
+                    <button onclick="decideBid(${b.id},false)">
+                      Ablehnen
+                    </button>
+                  </span>
+                </div>
+              `).join(''):
+              '<p class="muted">Noch keine Gebote</p>'
+            }
+          </div>
+        `;
+      }).join('')||'<p>Keine eigenen Angebote.</p>';
+
+    out+='<h3>Angebote anderer Manager</h3>';
+
+    out+=state.listings.filter(l=>l.seller!==selected)
+      .map(l=>{
+        let p=player(l.playerId);
+
+        return p?card(
           p,
           `<div>
-            <button onclick="
-              editPlayer(${p.id})
-            ">
-              Bearbeiten
-            </button>
-
-            <button
-              class="danger"
-              onclick="deletePlayer(${p.id})"
-              ${state.locked?'disabled':''}
-            >
-              Löschen
+            <small>
+              Mindestens ${euro(l.min)}
+              · ${esc(state.managers[l.seller].name)}
+            </small>
+            <br>
+            <button onclick="bidOnListing(${p.id})">
+              Gebot abgeben
             </button>
           </div>`
-        )).join('')}
-      `:`
-        <p class="status">
-          Nur der aktuelle Administrator
-          darf Spieler verwalten.
-        </p>
-      `}
-    `;
+        ):'';
+      }).join('')||'<p>Keine Angebote.</p>';
+
+    out+='<h3>Meine offenen Gebote</h3>';
+
+    out+=state.bids.filter(b=>b.buyer===selected)
+      .map(b=>{
+        let p=player(b.playerId);
+
+        return p?
+          `<div class="card">
+            ${esc(p.name)} · ${euro(b.amount)}
+            · wartet auf Entscheidung
+          </div>`:'';
+      }).join('')||'<p>Keine offenen Gebote.</p>';
   }
 
+  if(tab==='round'){
+    out=`<h2>Spieltag ${state.round}</h2>`+
+      managerSelect()+
+      `<p class="status">
+        ${state.locked?
+          '🔒 Aufstellungen gesperrt':
+          '🔓 Aufstellungen offen'}
+      </p>`+
+      (isAdmin()?
+        state.players.map(p=>`
+          <div class="card row">
+            <div>
+              ${esc(p.name)} ${badge(p)}
+            </div>
+            <label>
+              Punkte
+              <input type="number"
+                style="width:85px"
+                step="1"
+                value="${p.points}"
+                onchange="setPoints(${p.id},this.value)">
+            </label>
+          </div>
+        `).join('')+
+        (state.locked?
+          '<button onclick="finish()">✅ Spieltag abschließen</button>':
+          '<button onclick="lock()">🔒 Aufstellungen sperren</button>'):
+        '<p>Nur der aktuelle Admin trägt Spielerpunkte ein und schließt Spieltage ab.</p>'
+      )+
+      '<p class="muted">Unbesetzter Stammplatz: −4 Punkte. Negatives Budget: insgesamt 0 Spieltagspunkte. Ersatzbank ist freiwillig.</p>';
+  }
 
-  // SPIELLEITER / ADMIN
+  if(tab==='table'){
+    out='<h2>Manager-Tabelle</h2>'+
+      [...state.managers]
+        .sort((a,b)=>b.points-a.points)
+        .map((m,i)=>`
+          <div class="card">
+            ${i+1}. <b>${esc(m.name)}</b>
+            · ${m.points} Punkte
+            · ${euro(m.cash)}
+          </div>
+        `).join('');
+  }
+
+  if(tab==='players'){
+    out='<h2>Spieler verwalten</h2>'+
+      managerSelect();
+
+    if(isAdmin()){
+      out+=`
+        <div class="card">
+          <h3>
+            ${editing===null?'Spieler anlegen':'Spieler bearbeiten'}
+          </h3>
+
+          <div class="form">
+            <label>
+              Name
+              <input id="editName" maxlength="100">
+            </label>
+
+            <label>
+              Position
+              <select id="editPos">
+                ${POS.map(p=>`<option>${p}</option>`).join('')}
+              </select>
+            </label>
+
+            <label>
+              Wert (Mio.)
+              <input id="editValue"
+                type="number" min=".01" step=".01">
+            </label>
+          </div>
+
+          <button onclick="savePlayer()">
+            💾 Speichern
+          </button>
+
+          ${editing!==null?
+            '<button onclick="editing=null;render()">Abbrechen</button>':''}
+        </div>
+      `;
+    }
+
+    out+='<h3>Alle Spieler ('+
+      state.players.length+')</h3>'+
+      state.players.map(p=>card(
+        p,
+        isAdmin()?
+          `<button onclick="editPlayer(${p.id})">
+            Bearbeiten
+          </button>
+          <button class="danger"
+            onclick="deletePlayer(${p.id})"
+            ${state.locked?'disabled':''}>
+            Löschen
+          </button>`:''
+      )).join('');
+  }
 
   if(tab==='admin'){
-    html=`
-      <h2>🛡️ Spielleiter</h2>
-
-      ${managerSelect()}
-
-      <p class="status">
-        Aktueller Administrator:
-        <b>
-          ${esc(
-            state.managers[state.adminIndex].name
-          )}
-        </b>
-      </p>
-
-      ${isAdmin()?`
+    out='<h2>🛡️ Spielleiter</h2>'+
+      managerSelect()+
+      (isAdmin()?`
         <div class="card">
           <h3>Transfermarkt</h3>
 
-          <p>
-            Aktuell:
-            ${state.market.length}
-            von 15 möglichen Angeboten.
-          </p>
-
           <button onclick="refreshMarket()">
-            🔄 Transfermarkt erneuern
+            🔄 Angebote neu mischen
           </button>
+
+          <p class="muted">
+            Es werden bis zu 15 freie Spieler angeboten.
+            Gekaufte Spieler bleiben bei ihren Managern.
+          </p>
         </div>
 
         <div class="card">
-          <h3>Manager verwalten</h3>
-
-          <p class="muted">
-            Alle fünf Manager können
-            umbenannt werden.
-            Du kannst außerdem einen
-            anderen Manager zum
-            Administrator machen.
-          </p>
+          <h3>Manager umbenennen</h3>
 
           ${state.managers.map((m,i)=>`
-            <div class="card">
-              <div class="row">
-                <div>
-                  <b>${esc(m.name)}</b>
-                  ${i===state.adminIndex?
-                    ' 🛡️ Admin':''}
-                </div>
+            <div class="row">
+              <span>
+                ${esc(m.name)}
+                ${i===state.adminIndex?' (Admin)':''}
+              </span>
 
-                <div>
-                  <button
-                    onclick="rename(${i})"
-                  >
-                    Umbenennen
-                  </button>
+              <button onclick="rename(${i})">
+                Umbenennen
+              </button>
 
-                  ${i!==state.adminIndex?`
-                    <button
-                      onclick="changeAdmin(${i})"
-                    >
-                      Zum Admin machen
-                    </button>
-                  `:''}
-                </div>
-              </div>
+              ${i!==state.adminIndex?
+                `<button onclick="makeAdmin(${i})">
+                  Zum Admin machen
+                </button>`:''}
             </div>
           `).join('')}
         </div>
 
         <div class="card">
-          <h3>Spieltagsverwaltung</h3>
+          <h3>Spieltag ${state.round}</h3>
 
-          <p>
-            Aktueller Spieltag:
-            <b>${state.round}</b>
-          </p>
-
-          <button
-            onclick="lock()"
-            ${state.locked?'disabled':''}
-          >
-            🔒 Aufstellungen sperren
-          </button>
-
-          <button
-            onclick="finish()"
-            ${!state.locked?'disabled':''}
-          >
-            Spieltag abschließen
+          <button onclick="go('round')">
+            Punkte & Spieltag verwalten
           </button>
         </div>
-      `:`
-        <p class="status">
-          Wähle den aktuellen
-          Administrator aus,
-          um die Spielleiter-Funktionen
-          zu verwenden.
-        </p>
-      `}
-    `;
+      `:
+      '<p>Nur der aktuelle Admin darf den Transfermarkt erneuern, Manager umbenennen und Spieltage verwalten.</p>');
   }
-
-
-  // DATENSICHERUNG
 
   if(tab==='backup'){
-    html=`
-      <h2>Datensicherung</h2>
+    out=`
+      <h2>Sicherung</h2>
 
-      <div class="card">
-        <h3>Spielstand sichern</h3>
+      <button onclick="backup()">
+        JSON-Sicherung herunterladen
+      </button>
 
-        <p>
-          Speichere alle Manager,
-          Spieler, Marktwerte,
-          Aufstellungen und Punkte
-          als JSON-Datei.
-        </p>
+      <p>
+        <label>
+          Sicherung importieren
+          <input type="file"
+            accept=".json,application/json"
+            onchange="restore(event)">
+        </label>
+      </p>
 
-        <button onclick="backup()">
-          Sicherung herunterladen
-        </button>
-      </div>
+      <button class="danger" onclick="reset()">
+        Test zurücksetzen
+      </button>
 
-      <div class="card">
-        <h3>Spielstand wiederherstellen</h3>
-
-        <input
-          type="file"
-          accept=".json,application/json"
-          onchange="
-            restore(this.files[0])
-          "
-        >
-      </div>
-
-      <div class="card">
-        <h3>Neues Spiel starten</h3>
-
-        <p class="muted">
-          Achtung: Der bisherige
-          Spielstand wird gelöscht.
-          Erstelle vorher eine Sicherung.
-        </p>
-
-        <button
-          class="danger"
-          onclick="resetGame()"
-        >
-          Spielstand zurücksetzen
-        </button>
-      </div>
+      <p class="muted">
+        Daten werden lokal auf diesem Gerät gespeichert.
+        Andere Geräte synchronisieren sich nicht automatisch.
+        Die Admin-Rolle ist in dieser Offline-Version
+        nicht passwortgeschützt.
+      </p>
     `;
   }
 
-  $('app').innerHTML=html;
+  $('app').innerHTML=out;
+
+  if(tab==='players'&&isAdmin()&&editing!==null){
+    let p=player(editing);
+
+    if(p){
+      $('editName').value=p.name;
+      $('editPos').value=p.position;
+      $('editValue').value=p.value;
+    }
+  }
 }
-
-
-// SICHERUNG HERUNTERLADEN
 
 function backup(){
-  let data=JSON.stringify(
-    state,
-    null,
-    2
+  let url=URL.createObjectURL(
+    new Blob(
+      [JSON.stringify(state,null,2)],
+      {type:'application/json'}
+    )
   );
-
-  let blob=new Blob(
-    [data],
-    {type:'application/json'}
-  );
-
-  let url=URL.createObjectURL(blob);
 
   let a=document.createElement('a');
-
   a.href=url;
-  a.download='lego-hockey-manager-backup.json';
-
-  document.body.appendChild(a);
+  a.download='hockey-sicherung.json';
   a.click();
-  a.remove();
 
-  URL.revokeObjectURL(url);
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
 }
 
+function restore(e){
+  let f=e.target.files[0];
+  if(!f)return;
 
-// SICHERUNG WIEDERHERSTELLEN
+  f.text().then(t=>{
+    let s=JSON.parse(t);
 
-async function restore(file){
-  if(!file)return;
-
-  if(!confirm(
-    'Aktuellen Spielstand durch '+
-    'die Sicherung ersetzen?'
-  )){
-    return;
-  }
-
-  try{
-    let data=JSON.parse(
-      await file.text()
-    );
-
-    if(
-      !data||
-      !Array.isArray(data.players)||
-      !Array.isArray(data.managers)
-    ){
-      throw Error(
-        'Ungültige Sicherungsdatei'
-      );
+    if(!Array.isArray(s.players)||
+       !Array.isArray(s.managers)){
+      throw Error();
     }
 
-    state=data;
+    if(!confirm(
+      'Aktuellen Spielstand durch Sicherung ersetzen?'
+    ))return;
 
+    state=s;
     normalize();
-
     selected=0;
     editing=null;
-
     save();
     render();
-
-    notice(
-      'Spielstand erfolgreich wiederhergestellt.'
-    );
-
-  }catch(e){
-    alert(
-      'Wiederherstellung fehlgeschlagen: '+
-      e.message
-    );
-  }
+    notice('Sicherung geladen');
+  }).catch(()=>alert('Ungültige Sicherung'));
 }
 
-
-// SPIELSTAND ZURÜCKSETZEN
-
-function resetGame(){
-  if(!guard())return;
-
-  if(!confirm(
-    'Wirklich alle bisherigen '+
-    'Spieldaten löschen?'
-  )){
-    return;
-  }
-
-  if(!confirm(
-    'Letzte Bestätigung: '+
-    'Neues Spiel starten?'
-  )){
-    return;
-  }
+function reset(){
+  if(!confirm('Alle Daten zurücksetzen?'))return;
 
   state=fresh();
-
+  normalize();
   selected=0;
   editing=null;
-  tab='market';
-
-  normalize();
   save();
   render();
-
-  notice(
-    'Neues Spiel gestartet.'
-  );
 }
 
-
-// APP STARTEN
-
 render();
-
 </script>
 </body>
 </html>
+
 
 
